@@ -144,14 +144,14 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   debugPageStack() {
-    let str = '';
-    this.iterPage(this.pageList.next, function (p) {
-      if (str) {
-        str += ' | ';
-      }
-      str += `${p.node ? (p.node.key as string) : ''}`;
-    });
-    console.log(str);
+    // let str = '';
+    // this.iterPage(this.pageList.next, function (p) {
+    //   if (str) {
+    //     str += ' | ';
+    //   }
+    //   str += `${p.node ? (p.node.key as string) : ''}`;
+    // });
+    // console.log(str);
   }
 
   updateVNode(oldNode: VNode, newNode: VNode): void {
@@ -174,13 +174,10 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   evaluate(node: VNode, ctx: CacheContext): VNode | null {
-    console.log('-before-');
     this.debugPageStack();
     const n = this._evaluate(node, ctx);
-    console.log('-after-');
     this.debugPageStack();
     setTimeout(() => {
-      console.log('-post-');
       this.debugPageStack();
     }, 0);
     return n;
