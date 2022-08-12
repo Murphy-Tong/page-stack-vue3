@@ -254,6 +254,11 @@ export default class PageStack implements ComponentEvaluator {
           this.lastDisplayPage.node = ctx.cacheNode(this.lastDisplayPage.node!);
           return this.lastDisplayPage.node;
         }
+
+        this.destoryPageAsync(ctx, this.removeNode(this.lastDisplayPage));
+        this.lastDisplayPage = this.createPage(node, state);
+        ctx.cacheNode(this.lastDisplayPage.node!);
+        return this.lastDisplayPage.node!;
       }
     }
 
