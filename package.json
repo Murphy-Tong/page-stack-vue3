@@ -10,7 +10,8 @@
   "keywords": [
     "vue3",
     "vue",
-    "pagestack"
+    "pagestack",
+    "app"
   ],
   "files": [
     "lib",
@@ -19,7 +20,8 @@
   "author": "tongzyang1047@gmail.com",
   "license": "ISC",
   "peerDependencies": {
-    "vue": "3.0.0"
+    "vue": "3.0.0",
+    "vue-router": "^4.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.10",
@@ -35,9 +37,7 @@
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.0-0"
-  },
-  "dependencies": {
+    "vue-router": "^4.0.0",
     "@types/gulp": "^4.0.9"
   }
 }
