@@ -1,45 +1,44 @@
 ## Page Stack for Vue3
+#### [Github](https://github.com/Murphy-Tong/page-stack-vue3) / [Npm](https://www.npmjs.com/package/page-stack-vue3)
 
---- 
 ### 简介：
-    按照app页面栈的方式，控制路由跳转，打开新页面时保存旧页面的状态，返回时销毁页面，适合移动端H5项目
+按照app页面栈的方式，控制路由跳转，打开新页面时保存旧页面的状态，返回时销毁页面，适合移动端H5项目
 
 ### Usage：
 
 1.  安装依赖
 
-
-```shell
-yarn install page-stack-vue3
-```
+    ```shell
+    yarn install page-stack-vue3
+    ```
 2.  在view-router中使用
-```javascript
+    ```javascript
 
-export default defineComponent({
-  setup() {
-    return function () {
-      return (
-        <RouterView>
-          {function ({
-            Component,
-            route,
-          }: {
-            Component: VNode;
-            route: RouteLocation;
-          }) {
-            return (
-              <PageStack>
-                {Component && cloneVNode(Component, { key: route.path })}//key 不必须
-              </PageStack>
-            );
-          }}
-        </RouterView>
-      );
-    };
-  },
-});
+    export default defineComponent({
+    setup() {
+        return function () {
+        return (
+            <RouterView>
+            {function ({
+                Component,
+                route,
+            }: {
+                Component: VNode;
+                route: RouteLocation;
+            }) {
+                return (
+                <PageStack>
+                    {Component && cloneVNode(Component, { key: route.path })}//key 不必须
+                </PageStack>
+                );
+            }}
+            </RouterView>
+        );
+        };
+    },
+    });
 
-```
+    ```
 3.  Component Optios
     ```javascript
     {
