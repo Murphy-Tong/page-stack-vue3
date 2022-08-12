@@ -11,7 +11,7 @@
 1.  安装依赖
 
     ```shell
-    yarn install page-stack-vue3
+    yarn add page-stack-vue3
     ```
 2.  在view-router中使用
     ```javascript
