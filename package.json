@@ -19,6 +19,10 @@
   ],
   "author": "tongzyang1047@gmail.com",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Murphy-Tong/page-stack-vue3"
+  },
   "peerDependencies": {
     "vue": "^3.0.0",
     "vue-router": "^4.0.0"
