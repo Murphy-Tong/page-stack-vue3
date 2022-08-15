@@ -31,17 +31,21 @@
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
+    "@types/gulp": "^4.0.9",
     "@vue/babel-plugin-jsx": "^1.1.1",
     "@vue/compiler-sfc": "^3.2.37",
     "gulp": "^4.0.2",
     "gulp-babel": "8.0.0",
     "gulp-cli": "^2.3.0",
+    "gulp-esbuild": "^0.10.5",
     "gulp-typescript": "^6.0.0-alpha.1",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.0",
-    "@types/gulp": "^4.0.9"
+    "vue-router": "^4.0.0"
+  },
+  "dependencies": {
+    "core-js": "2"
   }
 }

@@ -6,26 +6,33 @@ import { series, src, dest } from "gulp"
 import babel from 'gulp-babel'
 import tsc from 'gulp-typescript'
 // import vueJsx from 'js'
+import gulpEsbuild from 'gulp-esbuild'
 
 const OUT_DIR = path.resolve(__dirname, "..", "lib")
 
-function buildJSX(inputStream: stream.Readable) {
-    return inputStream.pipe(babel({
-        // presets: ['@babel/preset-env'],
-        plugins: [['@vue/babel-plugin-jsx', { mergeProps: false, enableObjectSlots: false, transformOn: true }]]
+function buildJS(inputStream: stream.Readable) {
+    return inputStream.pipe(gulpEsbuild({
+        bundle: false,
+        target: 'es2016'
     })).pipe(dest(OUT_DIR))
+    // return inputStream.pipe(babel({
+    //     presets: [['@babel/preset-env', {
+    //         // "targets": "es2020"
+    //     }]],
+    //     plugins: [['@vue/babel-plugin-jsx', { mergeProps: false, enableObjectSlots: false, transformOn: true }]]
+    // })).pipe(dest(OUT_DIR))
 }
 
 function build() {
     const tsFile = src(['../src/**/*.tsx', '../src/**/*.ts']).pipe(tsc({
         declaration: true,
-        target: "ESNext",
-        module: "ESNext",
+        target: "es2020",
+        module: "es2020",
         jsx: 'preserve',
         moduleResolution: "node",
         types: [],
     }));
-    buildJSX(tsFile.js)
+    buildJS(tsFile.js)
     return tsFile.dts.pipe(dest(OUT_DIR))
 }
 
