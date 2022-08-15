@@ -15,11 +15,11 @@ declare class PageNode {
     constructor(node?: VNode, tag?: string);
 }
 export interface LifecycleCallback {
-    onCreate(node: VNode): void;
-    onPause(node: VNode): void;
-    onResume(node: VNode): void;
-    beforeDestory(node: VNode): void;
-    onDestory(node: VNode): void;
+    onCreate?(node: VNode): void;
+    onPause?(node: VNode): void;
+    onResume?(node: VNode): void;
+    beforeDestory?(node: VNode): void;
+    onDestory?(node: VNode): void;
 }
 export default class PageStack implements ComponentEvaluator {
     private idGen;

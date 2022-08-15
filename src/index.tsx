@@ -3,6 +3,9 @@ import { Router } from "vue-router";
 import ComponentCache, { ComponentEvaluator, Props } from "./componentCache";
 import PageStack, { LifecycleCallback } from "./pageStack";
 
+export type { ComponentEvaluator } from "./componentCache";
+export type { LifecycleCallback } from "./pageStack";
+
 export default defineComponent({
   props: {
     ...Props,

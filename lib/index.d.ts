@@ -2,6 +2,8 @@ import { PropType } from "vue";
 import { Router } from "vue-router";
 import { ComponentEvaluator } from "./componentCache";
 import { LifecycleCallback } from "./pageStack";
+export type { ComponentEvaluator } from "./componentCache";
+export type { LifecycleCallback } from "./pageStack";
 declare const _default: import("vue").DefineComponent<{
     componentEvaluator: {
         type: PropType<ComponentEvaluator>;

@@ -35,11 +35,11 @@ function same(n1: VNode, n2: VNode) {
 }
 
 export interface LifecycleCallback {
-  onCreate(node: VNode): void;
-  onPause(node: VNode): void;
-  onResume(node: VNode): void;
-  beforeDestory(node: VNode): void;
-  onDestory(node: VNode): void;
+  onCreate?(node: VNode): void;
+  onPause?(node: VNode): void;
+  onResume?(node: VNode): void;
+  beforeDestory?(node: VNode): void;
+  onDestory?(node: VNode): void;
 }
 
 export default class PageStack implements ComponentEvaluator {
