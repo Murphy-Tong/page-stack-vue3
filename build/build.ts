@@ -11,16 +11,15 @@ import gulpEsbuild from 'gulp-esbuild'
 const OUT_DIR = path.resolve(__dirname, "..", "lib")
 
 function buildJS(inputStream: stream.Readable) {
-    return inputStream.pipe(gulpEsbuild({
-        bundle: false,
-        target: 'es2016'
-    })).pipe(dest(OUT_DIR))
-    // return inputStream.pipe(babel({
-    //     presets: [['@babel/preset-env', {
-    //         // "targets": "es2020"
-    //     }]],
-    //     plugins: [['@vue/babel-plugin-jsx', { mergeProps: false, enableObjectSlots: false, transformOn: true }]]
-    // })).pipe(dest(OUT_DIR))
+    return inputStream
+        .pipe(gulpEsbuild({
+            bundle: false,
+            target: 'es2016'
+        }))
+        .pipe(babel({
+            plugins: [['@vue/babel-plugin-jsx', { mergeProps: false, enableObjectSlots: false, transformOn: true }]]
+        }))
+        .pipe(dest(OUT_DIR))
 }
 
 function build() {
