@@ -64,9 +64,9 @@ declare const _default: import("vue").DefineComponent<{
         type: PropType<ComponentEvaluator>;
         default: () => ComponentEvaluator;
     };
-}, () => VNode<import("vue").RendererNode, import("vue").RendererElement, {
+}, () => string | VNode<import("vue").RendererNode, import("vue").RendererElement, {
     [key: string]: any;
-}> | import("vue").VNodeNormalizedChildren, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, import("vue").EmitsOptions, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+}> | null, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, import("vue").EmitsOptions, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
     beforePause: {
         type: FunctionConstructor;
         require: boolean;

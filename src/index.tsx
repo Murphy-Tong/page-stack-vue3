@@ -37,7 +37,9 @@ export default defineComponent({
     return function () {
       return (
         <ComponentCache componentEvaluator={evaluator}>
-          {ctx.slots.default?.()?.[0]}
+          {function (...args: any) {
+            return ctx.slots.default?.(...(args || []))?.[0];
+          }}
         </ComponentCache>
       );
     };

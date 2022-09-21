@@ -1,34 +1,36 @@
 <template>
-  <div class="about">
-    <h1>Page 2</h1><br/>
-    <input v-model="val" /><br/>
-    <router-link to="/p3">前往page3</router-link><br/><br/>
-    <router-link to="/p1" replace>替换为page1</router-link><br/><br/>
-    <!-- <router-link to="/p2" replace>替换为page2</router-link><br/> -->
-    <router-link to="/p3" replace>替换为page3</router-link><br/><br/>
-    <button @click="back">后退</button><br/>
+  <div class="page">
+    <input/>
+    <button @click="forward">go next page</button>
+    <button @click="back">go back</button>
   </div>
 </template>
 
-<script lang="js">
+<script lang="ts">
+import { Options, Vue } from 'vue-class-component';
 import router from '@/router';
 
-export default {
-  data() {
-    return {
-      val: ''
-    }
-  }, methods: {
+@Options({
+  methods: {
+    forward() {
+      router.push('/p3')
+    },
     back() {
       router.go(-1)
     }
   }
-}
+})
+export default class HomeView extends Vue { }
 </script>
 
 <style scoped>
-.about {
+.page {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
   height: 100vh;
   overflow: scroll;
+  text-align: center;
+  background: olivedrab;
 }
 </style>

@@ -1,32 +1,28 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <h1>Page 1</h1>
-    <br/>
-    <!-- <router-link to="/p1" replace>替换为page1</router-link> -->
-    <br/><br/>
-    <button @click="forward">前往page2</button>
-    <br/><br/>
-    <router-link to="/p3" replace>替换为page3</router-link>
-    <br/><br/>
-    <button @click="back">后退</button>
-    <br/><br/>
-
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
-    
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <div class="page">
+    <input />
+    <h2>count:{{count}}</h2>
+    <button class="anim" @click="forward">go next page</button>
+    <button class="anim2" @click="back">go back</button>
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
 import router from '@/router';
 
 @Options({
-  components: {
-    HelloWorld,
+  data() {
+    return {
+      count: 0,
+      timeRef: 0
+    }
+  },
+  mounted() {
+    this.timeRef = setInterval(() => this.count = this.count + 1, 1000)
+  },
+  unmounted() {
+    clearInterval(this.timeRef)
   },
   methods: {
     forward() {
@@ -41,9 +37,35 @@ export default class HomeView extends Vue { }
 </script>
 
 <style scoped>
-.home {
+.page {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
   height: 100vh;
   overflow: scroll;
   text-align: center;
+  background: olive;
+}
+
+@keyframes scale-anim {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(4);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.anim {
+  /* animation: scale-anim 1s infinite; */
+}
+
+.anim2{
+  /* transform: translateY(-100px); */
 }
 </style>

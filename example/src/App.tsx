@@ -1,7 +1,14 @@
-import { cloneVNode, defineComponent, VNode } from "vue";
-import PageStack from "page-stack-vue3";
-import { RouteLocation, Router, RouterView } from "vue-router";
-
+import { RouteAction } from "../lib/pageStack";
+import {
+  cloneVNode,
+  defineComponent,
+  queuePostFlushCb,
+  Transition,
+  VNode,
+} from "vue";
+import { RouteLocation, RouterView } from "vue-router";
+import PageStack from "../lib/index";
+import "./index.less";
 export default defineComponent({
   setup() {
     return function () {
@@ -15,9 +22,25 @@ export default defineComponent({
             route: RouteLocation;
           }) {
             return (
-              <PageStack>
-                {Component && cloneVNode(Component, { key: route.path })}
-              </PageStack>
+              <div class="page-container">
+                <PageStack>
+                  {function ({ action }: { action: RouteAction }) {
+                    console.log(action);
+                    let transName = "";
+                    if (action === "back") {
+                      transName = "slide-out";
+                    } else if (action === "forword") {
+                      transName = "slide-in";
+                    }
+                    return (
+                      <Transition name={transName}>
+                        {Component &&
+                          cloneVNode(Component, { key: route.path })}
+                      </Transition>
+                    );
+                  }}
+                </PageStack>
+              </div>
             );
           }}
         </RouterView>

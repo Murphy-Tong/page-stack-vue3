@@ -31,7 +31,7 @@ export default class PageStack implements ComponentEvaluator {
     lifecycleCallback: LifecycleCallback | null;
     constructor(lifecycleCallback?: LifecycleCallback, router?: Router, mergeQueryToProps?: boolean);
     protected getLastPageNode(subPage?: PageNode): PageNode;
-    protected findPageNode(tag: string): PageNode;
+    protected findPageNode(tag: string): PageNode | null;
     protected createPage(node: VNode, state: State, link?: boolean): PageNode;
     protected copyKeyProps(page: PageNode, newNode: VNode): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
@@ -41,7 +41,7 @@ export default class PageStack implements ComponentEvaluator {
     protected destoryPageAsync(ctx: CacheContext, page?: PageNode): void;
     private debugPageStack;
     updateVNode(oldNode: VNode, newNode: VNode): void;
-    protected removeNode(page?: PageNode): PageNode;
+    protected removeNode(page?: PageNode): PageNode | undefined;
     evaluate(node: VNode, ctx: CacheContext): VNode | null;
     protected setRouteProps(node: VNode): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;

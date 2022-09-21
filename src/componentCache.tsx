@@ -11,6 +11,7 @@ import {
   onUnmounted,
   callWithAsyncErrorHandling,
   PropType,
+  Slot,
 } from "vue";
 
 const FLAG_NEED_KEEP_ALIVE = 1 << 8;
@@ -100,6 +101,7 @@ export interface ComponentEvaluator {
   evaluate(currentNode: VNode, ctx: CacheContext): VNode | null;
   reset(ctx: CacheContext): void;
   updateVNode(oldNode: VNode, newNode: VNode): void;
+  onRenderVNode(slot: Slot): VNode | null;
 }
 
 export const Props = {
@@ -132,6 +134,9 @@ export const Props = {
         },
         reset() {},
         updateVNode() {},
+        onRenderVNode(slot) {
+          return slot()[0];
+        },
       };
     },
   },
@@ -185,8 +190,10 @@ export default defineComponent({
     };
 
     const instance = getCurrentInstance();
-    const { suspense: parentSuspense, proxy: instanceProxy } =
-      (instance as any) || {};
+    if (!instance) {
+      throw new Error();
+    }
+    const { suspense: parentSuspense, proxy: instanceProxy } = instance as any;
     const renderer = instanceProxy?.renderer;
     const {
       p: patch,
@@ -305,11 +312,10 @@ export default defineComponent({
     });
 
     return function () {
-      const childNodes = ctx.slots?.default?.();
-      if (!childNodes || childNodes.length > 1) {
-        throw new Error("should only exist one child");
-      }
-      let newComponent: VNode | undefined = childNodes[0];
+      const evaluator = props.componentEvaluator as ComponentEvaluator;
+      let newComponent: VNode | null = evaluator.onRenderVNode(
+        ctx.slots?.default!
+      );
       if (!newComponent) {
         return newComponent;
       }
@@ -332,7 +338,7 @@ export default defineComponent({
           throw new Error("cannot has array child");
         } else if (typeof tarnsitionChildSlots === "object") {
           // slot child
-          newComponent = (tarnsitionChildSlots as Slots).default?.()[0];
+          newComponent = (tarnsitionChildSlots as Slots).default?.()[0] || null;
           shouldOrvewriteChild = true;
           if (!newComponent) {
             return originChild;
@@ -343,7 +349,6 @@ export default defineComponent({
         }
       }
 
-      const evaluator = props.componentEvaluator as ComponentEvaluator;
       let displayComponent = evaluator.evaluate(newComponent, cacheContext);
 
       if (!displayComponent) {
