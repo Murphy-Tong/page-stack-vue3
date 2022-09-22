@@ -11,6 +11,9 @@
     "vue3",
     "vue",
     "pagestack",
+    "navigator",
+    "page",
+    "stack",
     "app"
   ],
   "files": [
