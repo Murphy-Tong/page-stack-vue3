@@ -1,14 +1,10 @@
 import { PropType } from "vue";
 import { Router } from "vue-router";
-import { ComponentEvaluator } from "./componentCache";
 import { LifecycleCallback } from "./pageStack";
-export type { ComponentEvaluator } from "./componentCache";
-export type { LifecycleCallback } from "./pageStack";
+import "./index.css";
+export * from "./componentCache";
+export * from "./pageStack";
 declare const _default: import("vue").DefineComponent<{
-    componentEvaluator: {
-        type: PropType<ComponentEvaluator>;
-        default: any;
-    };
     lifeCycleCallback: {
         type: PropType<LifecycleCallback>;
         require: boolean;
@@ -21,20 +17,24 @@ declare const _default: import("vue").DefineComponent<{
         type: BooleanConstructor;
         default: boolean;
     };
+    disableAnimation: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
     beforePause: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onPause: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onResume: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     beforeResume: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     saveStatus: {
@@ -42,10 +42,6 @@ declare const _default: import("vue").DefineComponent<{
         default: boolean;
     };
 }, () => JSX.Element, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, Record<string, any>, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
-    componentEvaluator: {
-        type: PropType<ComponentEvaluator>;
-        default: any;
-    };
     lifeCycleCallback: {
         type: PropType<LifecycleCallback>;
         require: boolean;
@@ -58,20 +54,24 @@ declare const _default: import("vue").DefineComponent<{
         type: BooleanConstructor;
         default: boolean;
     };
+    disableAnimation: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
     beforePause: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onPause: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onResume: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     beforeResume: {
-        type: FunctionConstructor;
+        type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     saveStatus: {
@@ -80,7 +80,7 @@ declare const _default: import("vue").DefineComponent<{
     };
 }>>, {
     saveStatus: boolean;
-    componentEvaluator: ComponentEvaluator;
     mergeQueryToProps: boolean;
+    disableAnimation: boolean;
 }>;
 export default _default;

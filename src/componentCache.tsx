@@ -104,41 +104,28 @@ export interface ComponentEvaluator {
   onRenderVNode(slot: Slot): VNode | null;
 }
 
+export type VNodeCacheStateChangeCallback = (node: VNode) => void;
+
 export const Props = {
   beforePause: {
-    type: Function,
+    type: Function as PropType<VNodeCacheStateChangeCallback>,
     require: false,
   },
   onPause: {
-    type: Function,
+    type: Function as PropType<VNodeCacheStateChangeCallback>,
     require: false,
   },
   onResume: {
-    type: Function,
+    type: Function as PropType<VNodeCacheStateChangeCallback>,
     require: false,
   },
   beforeResume: {
-    type: Function,
+    type: Function as PropType<VNodeCacheStateChangeCallback>,
     require: false,
   },
   saveStatus: {
     type: Boolean,
     default: true,
-  },
-  componentEvaluator: {
-    type: Object as PropType<ComponentEvaluator>,
-    default: function (): ComponentEvaluator {
-      return {
-        evaluate(node) {
-          return node;
-        },
-        reset() {},
-        updateVNode() {},
-        onRenderVNode(slot) {
-          return slot()[0];
-        },
-      };
-    },
   },
 };
 
@@ -160,11 +147,28 @@ function cacheableNode(node?: VNode) {
 
 export default defineComponent({
   __isKeepAlive: true,
-  props: Props,
+  props: {
+    ...Props,
+    componentEvaluator: {
+      type: Object as PropType<ComponentEvaluator>,
+      default: function (): ComponentEvaluator {
+        return {
+          evaluate(node) {
+            return node;
+          },
+          reset() {},
+          updateVNode() {},
+          onRenderVNode(slot) {
+            return slot()[0];
+          },
+        };
+      },
+    },
+  },
   setup(props: any, ctx: SetupContext) {
     const beforeDeactive = function (node: VNode) {
       if (props.beforePause) {
-        props.beforePause(node.component, node);
+        props.beforePause(node);
       }
       if (props.saveStatus) {
         saveStatus(node);
@@ -172,12 +176,12 @@ export default defineComponent({
     };
     const afterDeactive = function (node: VNode) {
       if (props.onPause) {
-        props.onPause(node.component, node);
+        props.onPause(node);
       }
     };
     const beforeReactive = function (node: VNode) {
       if (props.beforeResume) {
-        props.beforeResume(node.component, node);
+        props.beforeResume(node);
       }
     };
     const afterReactive = function (node: VNode) {
@@ -185,13 +189,13 @@ export default defineComponent({
         restoreStatus(node);
       }
       if (props.onResume) {
-        props.onResume(node.component, node);
+        props.onResume(node);
       }
     };
 
     const instance = getCurrentInstance();
     if (!instance) {
-      throw new Error();
+      throw new Error("getCurrentInstance return null");
     }
     const { suspense: parentSuspense, proxy: instanceProxy } = instance as any;
     const renderer = instanceProxy?.renderer;
@@ -203,7 +207,7 @@ export default defineComponent({
     } = renderer;
 
     if (!instanceProxy) {
-      throw new Error();
+      throw new Error("getCurrentInstance().proxy return null");
     }
     const storageContainer = createElement("div");
     const vnodeActive = function (

@@ -13,86 +13,83 @@ export interface ComponentEvaluator {
     updateVNode(oldNode: VNode, newNode: VNode): void;
     onRenderVNode(slot: Slot): VNode | null;
 }
+export declare type VNodeCacheStateChangeCallback = (node: VNode) => void;
 export declare const Props: {
     beforePause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onPause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     beforeResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     saveStatus: {
         type: BooleanConstructor;
         default: boolean;
-    };
-    componentEvaluator: {
-        type: PropType<ComponentEvaluator>;
-        default: () => ComponentEvaluator;
     };
 };
 declare const _default: import("vue").DefineComponent<{
+    componentEvaluator: {
+        type: PropType<ComponentEvaluator>;
+        default: () => ComponentEvaluator;
+    };
     beforePause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onPause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     beforeResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     saveStatus: {
         type: BooleanConstructor;
         default: boolean;
-    };
-    componentEvaluator: {
-        type: PropType<ComponentEvaluator>;
-        default: () => ComponentEvaluator;
     };
 }, () => VNode<import("vue").RendererNode, import("vue").RendererElement, {
     [key: string]: any;
 }> | import("vue").VNodeNormalizedChildren, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, import("vue").EmitsOptions, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+    componentEvaluator: {
+        type: PropType<ComponentEvaluator>;
+        default: () => ComponentEvaluator;
+    };
     beforePause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onPause: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     onResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     beforeResume: {
-        type: FunctionConstructor;
+        type: PropType<VNodeCacheStateChangeCallback>;
         require: boolean;
     };
     saveStatus: {
         type: BooleanConstructor;
         default: boolean;
     };
-    componentEvaluator: {
-        type: PropType<ComponentEvaluator>;
-        default: () => ComponentEvaluator;
-    };
 }>>, {
-    saveStatus: boolean;
     componentEvaluator: ComponentEvaluator;
+    saveStatus: boolean;
 }>;
 export default _default;

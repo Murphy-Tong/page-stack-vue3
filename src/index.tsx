@@ -1,18 +1,19 @@
-import { defineComponent, PropType } from "vue";
+import { defineComponent, PropType, Transition } from "vue";
 import { Router } from "vue-router";
-import ComponentCache, { ComponentEvaluator, Props } from "./componentCache";
-import PageStack, { LifecycleCallback } from "./pageStack";
+import ComponentCache, { Props } from "./componentCache";
+import PageStack, { LifecycleCallback, RenderSlotProps } from "./pageStack";
+import "./index.css";
 
-export type { ComponentEvaluator } from "./componentCache";
-export type { LifecycleCallback } from "./pageStack";
+export * from "./componentCache";
+export * from "./pageStack";
+
+const TRANSITION_NAME_IN = "ps-slide-in";
+const TRANSITION_NAME_OUT = "ps-slide-out";
+const TRANSITION_CONTAINER = "ps-page-container";
 
 export default defineComponent({
   props: {
     ...Props,
-    componentEvaluator: {
-      type: Object as PropType<ComponentEvaluator>,
-      default: null,
-    },
     lifeCycleCallback: {
       type: Object as PropType<LifecycleCallback>,
       require: false,
@@ -25,22 +26,42 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    disableAnimation: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup(props, ctx) {
-    const evaluator =
-      props.componentEvaluator ||
-      new PageStack(
-        props.lifeCycleCallback,
-        props.router,
-        props.mergeQueryToProps
-      );
+    const evaluator = new PageStack(
+      props.lifeCycleCallback,
+      props.router,
+      props.mergeQueryToProps
+    );
+    ctx.expose({
+      getPageSize: evaluator.size.bind(evaluator),
+    });
     return function () {
       return (
-        <ComponentCache componentEvaluator={evaluator}>
-          {function (...args: any) {
-            return ctx.slots.default?.(...(args || []))?.[0];
-          }}
-        </ComponentCache>
+        <div class={TRANSITION_CONTAINER}>
+          <ComponentCache componentEvaluator={evaluator}>
+            {function (data: RenderSlotProps) {
+              if (props.disableAnimation) {
+                return ctx.slots.default?.(data)?.[0];
+              }
+              let transName = "";
+              if (data.action === "back") {
+                transName = TRANSITION_NAME_OUT;
+              } else if (data.action === "forword") {
+                transName = TRANSITION_NAME_IN;
+              }
+              return (
+                <Transition name={transName}>
+                  {ctx.slots.default?.(data)?.[0]}
+                </Transition>
+              );
+            }}
+          </ComponentCache>
+        </div>
       );
     };
   },

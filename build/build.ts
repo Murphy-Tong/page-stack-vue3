@@ -23,6 +23,7 @@ function buildJS(inputStream: stream.Readable) {
 }
 
 function build() {
+    src(['../src/**/*.css']).pipe(dest(OUT_DIR))
     const tsFile = src(['../src/**/*.tsx', '../src/**/*.ts']).pipe(tsc({
         declaration: true,
         target: "es2020",

@@ -1,16 +1,16 @@
-import { RouteAction } from "../lib/pageStack";
-import {
-  cloneVNode,
-  defineComponent,
-  queuePostFlushCb,
-  Transition,
-  VNode,
-} from "vue";
+import PageStack from "page-stack-vue3";
+
+import { cloneVNode, defineComponent, ref, VNode } from "vue";
 import { RouteLocation, RouterView } from "vue-router";
-import PageStack from "../lib/index";
-import "./index.less";
 export default defineComponent({
   setup() {
+    const psRef = ref();
+    const onPageResume = function () {
+      document.title = `第${psRef.value?.getPageSize() || 1}页`;
+    };
+    const lifeCb = {
+      onResume: onPageResume,
+    };
     return function () {
       return (
         <RouterView>
@@ -22,25 +22,9 @@ export default defineComponent({
             route: RouteLocation;
           }) {
             return (
-              <div class="page-container">
-                <PageStack>
-                  {function ({ action }: { action: RouteAction }) {
-                    console.log(action);
-                    let transName = "";
-                    if (action === "back") {
-                      transName = "slide-out";
-                    } else if (action === "forword") {
-                      transName = "slide-in";
-                    }
-                    return (
-                      <Transition name={transName}>
-                        {Component &&
-                          cloneVNode(Component, { key: route.path })}
-                      </Transition>
-                    );
-                  }}
-                </PageStack>
-              </div>
+              <PageStack ref={psRef} lifeCycleCallback={lifeCb}>
+                {Component && cloneVNode(Component, { key: route.path })}
+              </PageStack>
             );
           }}
         </RouterView>

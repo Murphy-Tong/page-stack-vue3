@@ -16,41 +16,52 @@
 2.  在view-router中使用
     ```javascript
 
+    import PageStack from "page-stack-vue3";
+    import { cloneVNode, defineComponent, ref, VNode } from "vue";
+    import { RouteLocation, RouterView } from "vue-router";
+
     export default defineComponent({
     setup() {
+        const psRef = ref();
+        const onPageResume = function () {
+        document.title = `第${psRef.value?.getPageSize() || 1}页`;
+        };
+        const lifeCb = {
+            onResume: onPageResume,
+        };
         return function () {
-        return (
-            <RouterView>
-            {function ({
-                Component,
-                route,
-            }: {
-                Component: VNode;
-                route: RouteLocation;
-            }) {
-                return (
-                <PageStack>
-                    {Component && cloneVNode(Component, { key: route.path })}//key 不必须
-                </PageStack>
-                );
-            }}
-            </RouterView>
-        );
+            return (
+                <RouterView>
+                    {function({Component,route}: {Component: VNode;route:RouteLocation}) {
+                        return (
+                            <PageStack ref={psRef} disableAnimation={true} lifeCycleCallback={lifeCb}>
+                                {Component && cloneVNode(Component, { key: route.path })}
+                            </PageStack>
+                        );
+                    }}
+                </RouterView>
+            );
         };
     },
     });
+
 
     ```
 3.  Component Optios
     ```javascript
     {
         //vue router实例
-         router: {
+        router: {
             type: Object as PropType<Router>,
             require: false,
         },
         //是否将路由query参数填充到页面组件的props中，router不传则此参数无效
         mergeQueryToProps: {
+            type: Boolean,
+            default: false,
+        },
+        //关闭页面切换动画
+        disableAnimation: {
             type: Boolean,
             default: false,
         },
@@ -60,17 +71,17 @@
 
 ### 注意事项
 
-1.  如果要跟transition一起使用，请将transition作为子组件使用
+1.  如果要跟transition一起使用，请将transition作为子组件使用，并配置**disableAnimation=true**
     ```javascript
-    <page-stack>
+    <page-stack :disableAnimation="true">
         <transition ...props>
-            <component is="xxx">
-            </component>
+            <component is="xxx"/>
         </transition>
     </page-stack>
     ```
 2.  本组件会重写page的key
 3.  生命周期同[keep-alive](https://cn.vuejs.org/)组件
+   
 
 
 

@@ -2,6 +2,9 @@ import { Slot, VNode } from 'vue';
 import { Router } from 'vue-router';
 import { CacheContext, ComponentEvaluator } from './componentCache';
 export declare type RouteAction = 'init' | 'forword' | 'back' | 'replace' | 'unknown';
+export declare type RenderSlotProps = {
+    action: RouteAction;
+};
 interface State {
     position: number;
     curNode: string | null;
@@ -12,8 +15,11 @@ declare class PageNode {
     pre: PageNode | null;
     tag: string | null;
     state: State | null;
+    lifeState: keyof LifecycleCallback | null;
+    lifecycleCallback: LifecycleCallback | null;
+    moveTo(life: keyof LifecycleCallback, async?: boolean): void;
     updateState(state: State): void;
-    constructor(node?: VNode, tag?: string);
+    constructor(node?: VNode, lifecycleCallback?: LifecycleCallback, tag?: string);
 }
 export interface LifecycleCallback {
     onCreate?(node: VNode): void;
@@ -41,6 +47,7 @@ export default class PageStack implements ComponentEvaluator {
     protected destoryPageAsync(ctx: CacheContext, page?: PageNode): void;
     private debugPageStack;
     updateVNode(oldNode: VNode, newNode: VNode): void;
+    size(): number;
     protected removeNode(page?: PageNode): PageNode;
     evaluate(node: VNode, ctx: CacheContext): VNode | null;
     protected setRouteProps(node: VNode): VNode<import("vue").RendererNode, import("vue").RendererElement, {
