@@ -171,14 +171,14 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   private debugPageStack(msg: string) {
-    let str = '';
-    this.iterPage(this.pageList.next, function (p) {
-      if (str) {
-        str += ' | ';
-      }
-      str += `${p.node ? `${(p.node.key as string)}-${p.lifeState}` : ''}`;
-    });
-    console.log(msg, str);
+    // let str = '';
+    // this.iterPage(this.pageList.next, function (p) {
+    //   if (str) {
+    //     str += ' | ';
+    //   }
+    //   str += `${p.node ? `${(p.node.key as string)}-${p.lifeState}` : ''}`;
+    // });
+    // console.log(msg, str);
   }
 
   updateVNode(oldNode: VNode, newNode: VNode): void {

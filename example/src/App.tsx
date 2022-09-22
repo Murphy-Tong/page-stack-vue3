@@ -1,7 +1,7 @@
 import PageStack from "page-stack-vue3";
-
 import { cloneVNode, defineComponent, ref, VNode } from "vue";
 import { RouteLocation, RouterView } from "vue-router";
+import "./index.css";
 export default defineComponent({
   setup() {
     const psRef = ref();
