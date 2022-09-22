@@ -4,7 +4,7 @@
 ### 简介：
 按照app页面栈的方式，控制路由跳转，打开新页面时保存旧页面的状态，返回时销毁页面，适合移动端H5项目
 
-[在线预览](https://cloud.yotako.cn/ps/#/)
+<img src="./example/demo.gif" width="30%"/>
 
 ### Usage：
 

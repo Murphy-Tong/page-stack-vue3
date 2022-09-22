@@ -4179,10 +4179,10 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.2.0.tgz#cb2868540e313d61de58fafbe35ce9004d5540e6"
   integrity sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==
 
-page-stack-vue3@^2.0.0-beta.2:
-  version "2.0.0-beta.2"
-  resolved "https://registry.yarnpkg.com/page-stack-vue3/-/page-stack-vue3-2.0.0-beta.2.tgz#0cc28a3ac941e1b87436840354110b6c7a4bf6bd"
-  integrity sha512-raMwHVThMfX7+BOo5PnbxORXDJdPJFX91fWdktAZ/I1RmLHe3Id28iE1AWSdilS5ib2czlcT2nXdSSEu461jgw==
+page-stack-vue3@^2.0.0-beta.3:
+  version "2.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/page-stack-vue3/-/page-stack-vue3-2.0.0-beta.3.tgz#f346418135b37cc1827fc080f33cd451900b7b4c"
+  integrity sha512-m+ktbiQJpGVPCfLMdC9jRKFc7KgMPu+z53qIararFfgegdbddV1X0GMZo2duaWemAcOBiwkMDkTmLx5lZob9pw==
 
 param-case@^3.0.4:
   version "3.0.4"
