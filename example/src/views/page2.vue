@@ -13,7 +13,7 @@ import router from '@/router';
 @Options({
   methods: {
     forward() {
-      router.push('/p3')
+      router.push('/scroll')
     },
     back() {
       router.go(-1)
