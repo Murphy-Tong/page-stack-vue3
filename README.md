@@ -81,6 +81,7 @@
     ```
 2.  本组件会重写page的key
 3.  生命周期同[keep-alive](https://cn.vuejs.org/)组件
+4.  虽然没有hack vue，但是使用了vue的私有api，所以不保证兼容所有的vue3版本，如果你的vue版本用不了这个库，那就是用不了。可以提issues。
    
 
 

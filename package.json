@@ -31,6 +31,7 @@
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.18.10",
+    "@testing-library/vue": "^6.6.1",
     "@types/gulp": "^4.0.9",
     "@vue/babel-plugin-jsx": "^1.1.1",
     "@vue/compiler-sfc": "^3.2.37",
