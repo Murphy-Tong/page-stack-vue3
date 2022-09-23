@@ -326,7 +326,7 @@ export default defineComponent({
       // other type is: function or object
       const originChild = newComponent;
       let shouldOrvewriteChild = false;
-      if ((newComponent.type as Component).name?.includes("Transition")) {
+      if ((newComponent.type as any).displayName?.includes("Transition")) {
         // is a transation
         // child slot
         const tarnsitionChildSlots = newComponent.children;

@@ -9,7 +9,7 @@ export * from "./pageStack";
 
 const TRANSITION_NAME_IN = "ps-slide-in";
 const TRANSITION_NAME_OUT = "ps-slide-out";
-const TRANSITION_CONTAINER = "ps-page-container";
+// const TRANSITION_CONTAINER = "ps-page-container";
 
 export default defineComponent({
   props: {
@@ -42,26 +42,24 @@ export default defineComponent({
     });
     return function () {
       return (
-        <div class={TRANSITION_CONTAINER}>
-          <ComponentCache componentEvaluator={evaluator}>
-            {function (data: RenderSlotProps) {
-              if (props.disableAnimation) {
-                return ctx.slots.default?.(data)?.[0];
-              }
-              let transName = "";
-              if (data.action === "back") {
-                transName = TRANSITION_NAME_OUT;
-              } else if (data.action === "forword") {
-                transName = TRANSITION_NAME_IN;
-              }
-              return (
-                <Transition name={transName}>
-                  {ctx.slots.default?.(data)?.[0]}
-                </Transition>
-              );
-            }}
-          </ComponentCache>
-        </div>
+        <ComponentCache componentEvaluator={evaluator}>
+          {function (data: RenderSlotProps) {
+            if (props.disableAnimation) {
+              return ctx.slots.default?.(data)?.[0];
+            }
+            let transName = "";
+            if (data.action === "back") {
+              transName = TRANSITION_NAME_OUT;
+            } else if (data.action === "forword") {
+              transName = TRANSITION_NAME_IN;
+            }
+            return (
+              <Transition name={transName}>
+                {ctx.slots.default?.(data)?.[0]}
+              </Transition>
+            );
+          }}
+        </ComponentCache>
       );
     };
   },
