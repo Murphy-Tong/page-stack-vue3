@@ -100,7 +100,7 @@ export default class PageStack implements ComponentEvaluator {
 
   protected createPage(node: VNode, state: State, link = true) {
     const tag = String(this.idGen++);
-    const pn = new PageNode(cloneVNode(node, { key: node.props?.key?.toString() + tag }), this.lifecycleCallback || undefined, tag);
+    const pn = new PageNode(cloneVNode(node, { key: (node.props?.key?.toString() || '') + tag }), this.lifecycleCallback || undefined, tag);
 
     if (link) {
       const lp = this.getLastPageNode();
