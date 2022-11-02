@@ -29,5 +29,5 @@
 
 .ps-slide-in-enter-active,
 .ps-slide-out-leave-active {
-  z-index: 1;
+  z-index: 10;
 }
