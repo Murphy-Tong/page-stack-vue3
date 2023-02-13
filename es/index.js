@@ -1,51 +1,15 @@
-"use strict";
-
 import { createVNode as _createVNode } from "vue";
-
-var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  var desc = Object.getOwnPropertyDescriptor(m, k);
-
-  if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-    desc = {
-      enumerable: true,
-      get: function () {
-        return m[k];
-      }
-    };
-  }
-
-  Object.defineProperty(o, k2, desc);
-} : function (o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-});
-
-var __exportStar = this && this.__exportStar || function (m, exports) {
-  for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const vue_1 = require("vue");
-
-const componentCache_1 = require("./componentCache");
-
-const pageStack_1 = require("./pageStack");
-
-require("./index.css");
-
-__exportStar(require("./componentCache"), exports);
-
-__exportStar(require("./pageStack"), exports);
-
+import { defineComponent, Transition } from "vue";
+import ComponentCache, { Props } from "./componentCache";
+import PageStack from "./pageStack";
+import "./index.css";
+export * from "./componentCache";
+export * from "./pageStack";
 const TRANSITION_NAME_IN = "ps-slide-in";
 const TRANSITION_NAME_OUT = "ps-slide-out"; // const TRANSITION_CONTAINER = "ps-page-container";
 
-exports.default = (0, vue_1.defineComponent)({
-  props: Object.assign(Object.assign({}, componentCache_1.Props), {
+export default defineComponent({
+  props: Object.assign(Object.assign({}, Props), {
     lifeCycleCallback: {
       type: Object,
       require: false
@@ -65,12 +29,12 @@ exports.default = (0, vue_1.defineComponent)({
   }),
 
   setup(props, ctx) {
-    const evaluator = new pageStack_1.default(props.lifeCycleCallback, props.router, props.mergeQueryToProps);
+    const evaluator = new PageStack(props.lifeCycleCallback, props.router, props.mergeQueryToProps);
     ctx.expose({
       getPageSize: evaluator.size.bind(evaluator)
     });
     return function () {
-      return _createVNode(componentCache_1.default, {
+      return _createVNode(ComponentCache, {
         "componentEvaluator": evaluator
       }, {
         default: function (data) {
@@ -88,7 +52,7 @@ exports.default = (0, vue_1.defineComponent)({
             transName = TRANSITION_NAME_IN;
           }
 
-          return _createVNode(vue_1.Transition, {
+          return _createVNode(Transition, {
             "name": transName
           }, {
             default: () => [(_f = (_e = (_d = ctx.slots).default) === null || _e === void 0 ? void 0 : _e.call(_d, data)) === null || _f === void 0 ? void 0 : _f[0]]

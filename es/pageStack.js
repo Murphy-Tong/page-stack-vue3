@@ -1,10 +1,4 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-const vue_1 = require("vue");
+import { cloneVNode, queuePostFlushCb } from 'vue';
 
 class PageNode {
   constructor(node, lifecycleCallback, tag) {
@@ -31,7 +25,7 @@ class PageNode {
     } = this;
 
     if (async) {
-      (0, vue_1.queuePostFlushCb)(() => {
+      queuePostFlushCb(() => {
         var _a;
 
         (_a = lifecycleCallback[life]) === null || _a === void 0 ? void 0 : _a.call(lifecycleCallback, node);
@@ -56,7 +50,7 @@ function same(n1, n2) {
   return n1.type === n2.type;
 }
 
-class PageStack {
+export default class PageStack {
   constructor(lifecycleCallback, router, mergeQueryToProps = false) {
     this.idGen = new Date().valueOf();
     this.pageList = new PageNode();
@@ -91,7 +85,7 @@ class PageStack {
     var _a, _b;
 
     const tag = String(this.idGen++);
-    const pn = new PageNode((0, vue_1.cloneVNode)(node, {
+    const pn = new PageNode(cloneVNode(node, {
       key: (((_b = (_a = node.props) === null || _a === void 0 ? void 0 : _a.key) === null || _b === void 0 ? void 0 : _b.toString()) || '') + tag
     }), this.lifecycleCallback || undefined, tag);
 
@@ -109,7 +103,7 @@ class PageStack {
   }
 
   copyKeyProps(page, newNode) {
-    return (0, vue_1.cloneVNode)(newNode, {
+    return cloneVNode(newNode, {
       key: page.node.key
     });
   }
@@ -163,7 +157,7 @@ class PageStack {
       return;
     }
 
-    (0, vue_1.queuePostFlushCb)(() => {
+    queuePostFlushCb(() => {
       this.destoryPage(page, ctx);
     });
   }
@@ -228,7 +222,7 @@ class PageStack {
       return node;
     }
 
-    return (0, vue_1.cloneVNode)(node, Object.assign({}, query));
+    return cloneVNode(node, Object.assign({}, query));
   }
 
   getAction() {
@@ -369,5 +363,3 @@ class PageStack {
   onReset(ctx) {}
 
 }
-
-exports.default = PageStack;

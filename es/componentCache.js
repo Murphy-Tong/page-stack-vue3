@@ -1,12 +1,4 @@
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Props = exports.invokeArrayFns = void 0;
-
-const vue_1 = require("vue");
-
+import { cloneVNode, getCurrentInstance, isVNode, queuePostFlushCb, defineComponent, onUnmounted, callWithAsyncErrorHandling } from "vue";
 const FLAG_NEED_KEEP_ALIVE = 1 << 8;
 const FLAG_KEPT_ALIVE = 1 << 9;
 const statusMap = new WeakMap();
@@ -87,14 +79,12 @@ function delStatus(node) {
   statusMap.delete(node.el);
 }
 
-const invokeArrayFns = (fns, arg) => {
+export const invokeArrayFns = (fns, arg) => {
   for (let i = 0; i < fns.length; i++) {
     fns[i](arg);
   }
 };
-
-exports.invokeArrayFns = invokeArrayFns;
-exports.Props = {
+export const Props = {
   beforePause: {
     type: Function,
     require: false
@@ -137,9 +127,9 @@ function cacheableNode(node) {
   return true;
 }
 
-exports.default = (0, vue_1.defineComponent)({
+export default defineComponent({
   __isKeepAlive: true,
-  props: Object.assign(Object.assign({}, exports.Props), {
+  props: Object.assign(Object.assign({}, Props), {
     componentEvaluator: {
       type: Object,
       default: function () {
@@ -194,7 +184,7 @@ exports.default = (0, vue_1.defineComponent)({
       }
     };
 
-    const instance = (0, vue_1.getCurrentInstance)();
+    const instance = getCurrentInstance();
 
     if (!instance) {
       throw new Error("getCurrentInstance return null");
@@ -224,21 +214,21 @@ exports.default = (0, vue_1.defineComponent)({
       const instance = vnode.component;
       beforeReactive(vnode);
       move(vnode, container, anchor, 0, parentSuspense);
-      (0, vue_1.queuePostFlushCb)(() => {
+      queuePostFlushCb(() => {
         instance.isDeactivated = false;
         const activeFn = instance.a;
 
         if (activeFn) {
-          (0, exports.invokeArrayFns)(activeFn);
+          invokeArrayFns(activeFn);
         }
 
         const vnodeHook = vnode.props && vnode.props.onVnodeMounted;
 
         if (vnodeHook) {
-          (0, vue_1.callWithAsyncErrorHandling)(vnodeHook, instance.parent, 7, [vnode, null]);
+          callWithAsyncErrorHandling(vnodeHook, instance.parent, 7, [vnode, null]);
         }
       });
-      (0, vue_1.queuePostFlushCb)(function () {
+      queuePostFlushCb(function () {
         afterReactive(vnode);
       }); // in case props have changed
 
@@ -249,17 +239,17 @@ exports.default = (0, vue_1.defineComponent)({
       const instance = vnode.component;
       beforeDeactive(vnode);
       move(vnode, storageContainer, null, 1, parentSuspense);
-      (0, vue_1.queuePostFlushCb)(() => {
+      queuePostFlushCb(() => {
         const deactiveFn = instance.da;
 
         if (deactiveFn) {
-          (0, exports.invokeArrayFns)(deactiveFn);
+          invokeArrayFns(deactiveFn);
         }
 
         const vnodeHook = vnode.props && vnode.props.onVnodeUnmounted;
 
         if (vnodeHook) {
-          (0, vue_1.callWithAsyncErrorHandling)(vnodeHook, instance.parent, 7, [vnode, null]);
+          callWithAsyncErrorHandling(vnodeHook, instance.parent, 7, [vnode, null]);
         }
 
         instance.isDeactivated = true;
@@ -307,7 +297,7 @@ exports.default = (0, vue_1.defineComponent)({
       cacheable: cacheableNode,
       destory
     };
-    (0, vue_1.onUnmounted)(function () {
+    onUnmounted(function () {
       props.componentEvaluator.reset(cacheContext);
     });
     return function () {
@@ -333,7 +323,7 @@ exports.default = (0, vue_1.defineComponent)({
           return tarnsitionChildSlots;
         }
 
-        if ((0, vue_1.isVNode)(tarnsitionChildSlots)) {
+        if (isVNode(tarnsitionChildSlots)) {
           // just vnode
           newComponent = tarnsitionChildSlots;
           shouldOrvewriteChild = true;
@@ -362,7 +352,7 @@ exports.default = (0, vue_1.defineComponent)({
 
       if (shouldOrvewriteChild && originChild) {
         const userVNode = displayComponent;
-        const child = (0, vue_1.cloneVNode)(displayComponent, {
+        const child = cloneVNode(displayComponent, {
           onVnodeBeforeMount(vnode) {
             var _a, _b;
 
