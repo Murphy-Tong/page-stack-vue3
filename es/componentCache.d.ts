@@ -63,7 +63,7 @@ declare const _default: import("vue").DefineComponent<{
     };
 }, () => VNode<import("vue").RendererNode, import("vue").RendererElement, {
     [key: string]: any;
-}> | import("vue").VNodeNormalizedChildren, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, import("vue").EmitsOptions, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+}> | import("vue").VNodeNormalizedChildren, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
     componentEvaluator: {
         type: PropType<ComponentEvaluator>;
         default: () => ComponentEvaluator;

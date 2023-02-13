@@ -18,6 +18,7 @@
     "app"
   ],
   "files": [
+    "es",
     "lib",
     "src"
   ],

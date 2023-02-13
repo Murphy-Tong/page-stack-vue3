@@ -55,7 +55,10 @@ function buildCJS() {
 }
 
 function clear() {
-  return fs.promises.rm(OUT_DIR, { recursive: true }).catch(console.log);
+  return Promise.all([
+    fs.promises.rm(OUT_DIR, { recursive: true }).catch(console.log),
+    fs.promises.rm(OUT_DIR_CJS, { recursive: true }).catch(console.log),
+  ]);
 }
 
 export default series(clear, parallel([build, buildCJS]));
