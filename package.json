@@ -2,9 +2,15 @@
   "name": "page-stack-vue3",
   "version": "2.0.3",
   "description": "",
-  "main": "./lib/index.js",
-  "module": "./es/index.js",
-  "types": "./es/index.d.ts",
+  "main": "./es/index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "gulp -f ./build/build.ts"
   },
