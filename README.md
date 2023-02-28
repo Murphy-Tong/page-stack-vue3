@@ -40,7 +40,7 @@
                 <RouterView>
                     {function({Component,route}: {Component: VNode;route:RouteLocation}) {
                         return (
-                            <PageStack ref={psRef} disableAnimation={true} lifeCycleCallback={lifeCb}>
+                            <PageStack ref={psRef} lifeCycleCallback={lifeCb}>
                                 {Component && cloneVNode(Component, { key: route.path })}
                             </PageStack>
                         );
