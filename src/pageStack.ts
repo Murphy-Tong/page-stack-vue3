@@ -1,15 +1,14 @@
-import { cloneVNode, queuePostFlushCb, Slot, VNode } from 'vue';
-import { Router } from 'vue-router';
-import { CacheContext, ComponentEvaluator } from './componentCache';
+import { cloneVNode, queuePostFlushCb, Slot, VNode } from "vue";
+import { Router } from "vue-router";
+import { CacheContext, ComponentEvaluator } from "./componentCache";
 
-export type RouteAction = 'init' | 'forword' | 'back' | 'replace' | 'unknown'
+export type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
 
-export type RenderSlotProps = { action: RouteAction }
+export type RenderSlotProps = { action: RouteAction };
 interface State {
   position: number;
   curNode: string | null;
 }
-
 
 class PageNode {
   node: VNode | null;
@@ -17,21 +16,24 @@ class PageNode {
   pre: PageNode | null;
   tag: string | null;
   state: State | null;
-  lifeState: keyof LifecycleCallback | null
-  lifecycleCallback: LifecycleCallback | null
+  lifeState: keyof LifecycleCallback | null;
+  lifecycleCallback: LifecycleCallback | null;
 
   moveTo(life: keyof LifecycleCallback, async = false) {
-    if (!life || this.lifeState === life || !this.node || !this.lifecycleCallback) {
-      return
+    if (!life || this.lifeState === life || !this.node) {
+      return;
     }
-    this.lifeState = life
-    const { node, lifecycleCallback } = this
+    this.lifeState = life;
+    if (!this.lifecycleCallback) {
+      return;
+    }
+    const { node, lifecycleCallback } = this;
     if (async) {
       queuePostFlushCb(() => {
-        lifecycleCallback[life]?.(node)
-      })
+        lifecycleCallback[life]?.(node);
+      });
     } else {
-      lifecycleCallback[life]?.(node)
+      lifecycleCallback[life]?.(node);
     }
   }
 
@@ -40,7 +42,11 @@ class PageNode {
     this.state = state;
   }
 
-  constructor(node?: VNode, lifecycleCallback?: LifecycleCallback, tag?: string) {
+  constructor(
+    node?: VNode,
+    lifecycleCallback?: LifecycleCallback,
+    tag?: string
+  ) {
     this.node = node || null;
     this.tag = tag || null;
     this.lifecycleCallback = lifecycleCallback || null;
@@ -76,7 +82,13 @@ export default class PageStack implements ComponentEvaluator {
 
   public lifecycleCallback: LifecycleCallback | null;
 
-  constructor(lifecycleCallback?: LifecycleCallback, router?: Router, mergeQueryToProps = false) {
+  debug = false;
+
+  constructor(
+    lifecycleCallback?: LifecycleCallback,
+    router?: Router,
+    mergeQueryToProps = false
+  ) {
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router || null;
     this.mergeQueryToProps = mergeQueryToProps;
@@ -100,7 +112,11 @@ export default class PageStack implements ComponentEvaluator {
 
   protected createPage(node: VNode, state: State, link = true) {
     const tag = String(this.idGen++);
-    const pn = new PageNode(cloneVNode(node, { key: (node.props?.key?.toString() || '') + tag }), this.lifecycleCallback || undefined, tag);
+    const pn = new PageNode(
+      cloneVNode(node, { key: (node.props?.key?.toString() || "") + tag }),
+      this.lifecycleCallback || undefined,
+      tag
+    );
 
     if (link) {
       const lp = this.getLastPageNode();
@@ -111,8 +127,8 @@ export default class PageStack implements ComponentEvaluator {
     state.curNode = tag;
 
     pn.state = state;
-    pn.moveTo('onCreate')
-    pn.moveTo('onResume', true)
+    pn.moveTo("onCreate");
+    pn.moveTo("onResume", true);
     return pn;
   }
 
@@ -120,7 +136,11 @@ export default class PageStack implements ComponentEvaluator {
     return cloneVNode(newNode, { key: page.node!.key as string });
   }
 
-  protected iterPage(start: PageNode | null, callback: (page: PageNode) => void, reverse = false) {
+  protected iterPage(
+    start: PageNode | null,
+    callback: (page: PageNode) => void,
+    reverse = false
+  ) {
     let cur = start || this.pageList.next;
     if (!cur) {
       return;
@@ -147,12 +167,12 @@ export default class PageStack implements ComponentEvaluator {
       fromPage,
       (p) => {
         if (p.node) {
-          p.moveTo('beforeDestory')
+          p.moveTo("beforeDestory");
           ctx.destory(p.node);
-          p.moveTo('onDestory')
+          p.moveTo("onDestory");
         }
       },
-      true,
+      true
     );
 
     if (!fromPage.pre) {
@@ -171,14 +191,17 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   private debugPageStack(msg: string) {
-    // let str = '';
-    // this.iterPage(this.pageList.next, function (p) {
-    //   if (str) {
-    //     str += ' | ';
-    //   }
-    //   str += `${p.node ? `${(p.node.key as string)}-${p.lifeState}` : ''}`;
-    // });
-    // console.log(msg, str);
+    if (!this.debug) {
+      return;
+    }
+    let str = "";
+    this.iterPage(this.pageList.next, function (p) {
+      if (str) {
+        str += " | ";
+      }
+      str += `${p.node ? `${p.node.key as string}-${p.lifeState}` : ""}`;
+    });
+    console.log(msg, str);
   }
 
   updateVNode(oldNode: VNode, newNode: VNode): void {
@@ -190,11 +213,11 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   public size() {
-    let count = 0
+    let count = 0;
     this.iterPage(null, function () {
-      count++
-    })
-    return count
+      count++;
+    });
+    return count;
   }
 
   protected removeNode(page?: PageNode) {
@@ -209,11 +232,11 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   evaluate(node: VNode, ctx: CacheContext): VNode | null {
-    this.debugPageStack('before');
+    this.debugPageStack("页面切换前");
     const n = this._evaluate(node, ctx);
-    this.debugPageStack('after evaluate');
+    this.debugPageStack("页面切换后");
     setTimeout(() => {
-      this.debugPageStack('post evaluate');
+      this.debugPageStack("页面切换并渲染后");
     }, 0);
     return n;
   }
@@ -228,32 +251,36 @@ export default class PageStack implements ComponentEvaluator {
 
   public getAction(): RouteAction {
     const state = history.state;
-    if (!state || typeof state !== 'object' || !Reflect.has(state, 'position')) {
-      return 'unknown'
+    if (
+      !state ||
+      typeof state !== "object" ||
+      !Reflect.has(state, "position")
+    ) {
+      return "unknown";
     }
 
     if (!this.lastDisplayPage) {
-      return 'init'
+      return "init";
     }
 
     if (!this.lastDisplayPage.state) {
-      return 'unknown'
+      return "unknown";
     }
 
     const { position: targetPosition } = state; //4
     const { position: curPosition } = this.lastDisplayPage.state; //6
     if (targetPosition > curPosition) {
-      return 'forword'
+      return "forword";
     }
     if (targetPosition < curPosition) {
-      return 'back'
+      return "back";
     }
-    return 'replace'
+    return "replace";
   }
 
   onRenderVNode(slot: Slot) {
-    const action = this.getAction()
-    return slot({ action })?.[0]
+    const action = this.getAction();
+    return slot({ action })?.[0];
   }
 
   private _evaluate(n: VNode, ctx: CacheContext): VNode | null {
@@ -262,16 +289,20 @@ export default class PageStack implements ComponentEvaluator {
     }
     const node = this.setRouteProps(n);
     const state = history.state;
-    if (!state || typeof state !== 'object' || !Reflect.has(state, 'position')) {
+    if (
+      !state ||
+      typeof state !== "object" ||
+      !Reflect.has(state, "position")
+    ) {
       return n;
     }
 
-    const action = this.getAction()
+    const action = this.getAction();
     if (this.lastDisplayPage && this.lastDisplayPage.state) {
       const { curNode } = state;
 
-      if (action === 'forword') {
-        this.lastDisplayPage.moveTo('onPause')
+      if (action === "forword") {
+        this.lastDisplayPage.moveTo("onPause");
         const pn = this.createPage(node, state);
         this.lastDisplayPage = pn;
         ctx.cacheNode(pn.node!);
@@ -280,32 +311,43 @@ export default class PageStack implements ComponentEvaluator {
 
       const oldPage = this.findPageNode(curNode);
       // 回退，旧页面可以复用
-      if (action === 'back' && oldPage && oldPage.node && same(oldPage.node, node)) {
+      if (
+        action === "back" &&
+        oldPage &&
+        oldPage.node &&
+        same(oldPage.node, node)
+      ) {
         const oldNode = oldPage.node;
-        oldPage.node = ctx.reuseNode(this.copyKeyProps(oldPage, node), oldPage.node);
+        oldPage.node = ctx.reuseNode(
+          this.copyKeyProps(oldPage, node),
+          oldPage.node
+        );
         if (oldPage.node) {
           const dp = this.removeNode(oldPage.next!);
           this.destoryPageAsync(ctx, dp!);
           this.lastDisplayPage = oldPage;
           oldPage.updateState(state);
-          oldPage.moveTo('onResume', true)
+          oldPage.moveTo("onResume", true);
           return oldPage.node!;
         }
         oldPage.node = oldNode;
       }
 
-      if (action === 'replace') {
+      if (action === "replace") {
         // replace
         const oldPage = this.findPageNode(this.lastDisplayPage.tag!);
         if (oldPage && oldPage.node && same(oldPage.node, node)) {
           const oldNode = oldPage.node;
-          oldPage.node = ctx.reuseNode(this.copyKeyProps(oldPage, node), oldPage.node);
+          oldPage.node = ctx.reuseNode(
+            this.copyKeyProps(oldPage, node),
+            oldPage.node
+          );
           if (oldPage.node) {
             const dp = this.removeNode(oldPage.next!);
             this.destoryPageAsync(ctx, dp!);
             this.lastDisplayPage = oldPage;
             oldPage.updateState(state);
-            oldPage.moveTo('onResume', true)
+            oldPage.moveTo("onResume", true);
             return oldPage.node;
           }
           oldPage.node = oldNode;
@@ -333,10 +375,10 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   reset(ctx: CacheContext): void {
-    this.onReset(ctx)
+    this.onReset(ctx);
     this.lastDisplayPage = null;
     this.destoryPage(this.pageList, ctx);
   }
 
-  public onReset(ctx: CacheContext) { }
+  public onReset(ctx: CacheContext) {}
 }
