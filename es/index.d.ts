@@ -5,6 +5,10 @@ import "./index.css";
 export * from "./componentCache";
 export * from "./pageStack";
 declare const _default: import("vue").DefineComponent<{
+    debug: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
     lifeCycleCallback: {
         type: PropType<LifecycleCallback>;
         require: boolean;
@@ -42,6 +46,10 @@ declare const _default: import("vue").DefineComponent<{
         default: boolean;
     };
 }, () => JSX.Element, unknown, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {}, string, import("vue").VNodeProps & import("vue").AllowedComponentProps & import("vue").ComponentCustomProps, Readonly<import("vue").ExtractPropTypes<{
+    debug: {
+        type: BooleanConstructor;
+        default: boolean;
+    };
     lifeCycleCallback: {
         type: PropType<LifecycleCallback>;
         require: boolean;
@@ -80,6 +88,7 @@ declare const _default: import("vue").DefineComponent<{
     };
 }>>, {
     saveStatus: boolean;
+    debug: boolean;
     mergeQueryToProps: boolean;
     disableAnimation: boolean;
 }>;

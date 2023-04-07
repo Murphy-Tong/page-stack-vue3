@@ -10,6 +10,10 @@ const TRANSITION_NAME_OUT = "ps-slide-out"; // const TRANSITION_CONTAINER = "ps-
 
 export default defineComponent({
   props: Object.assign(Object.assign({}, Props), {
+    debug: {
+      type: Boolean,
+      default: false
+    },
     lifeCycleCallback: {
       type: Object,
       require: false
@@ -30,6 +34,7 @@ export default defineComponent({
 
   setup(props, ctx) {
     const evaluator = new PageStack(props.lifeCycleCallback, props.router, props.mergeQueryToProps);
+    evaluator.debug = props.debug;
     ctx.expose({
       getPageSize: evaluator.size.bind(evaluator)
     });

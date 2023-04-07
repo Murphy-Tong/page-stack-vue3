@@ -1,7 +1,7 @@
-import { Slot, VNode } from 'vue';
-import { Router } from 'vue-router';
-import { CacheContext, ComponentEvaluator } from './componentCache';
-export declare type RouteAction = 'init' | 'forword' | 'back' | 'replace' | 'unknown';
+import { Slot, VNode } from "vue";
+import { Router } from "vue-router";
+import { CacheContext, ComponentEvaluator } from "./componentCache";
+export declare type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
 export declare type RenderSlotProps = {
     action: RouteAction;
 };
@@ -35,6 +35,7 @@ export default class PageStack implements ComponentEvaluator {
     private mergeQueryToProps;
     router: Router | null;
     lifecycleCallback: LifecycleCallback | null;
+    debug: boolean;
     constructor(lifecycleCallback?: LifecycleCallback, router?: Router, mergeQueryToProps?: boolean);
     protected getLastPageNode(subPage?: PageNode): PageNode;
     protected findPageNode(tag: string): PageNode;

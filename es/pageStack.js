@@ -1,4 +1,4 @@
-import { cloneVNode, queuePostFlushCb } from 'vue';
+import { cloneVNode, queuePostFlushCb } from "vue";
 
 class PageNode {
   constructor(node, lifecycleCallback, tag) {
@@ -14,11 +14,16 @@ class PageNode {
   moveTo(life, async = false) {
     var _a;
 
-    if (!life || this.lifeState === life || !this.node || !this.lifecycleCallback) {
+    if (!life || this.lifeState === life || !this.node) {
       return;
     }
 
     this.lifeState = life;
+
+    if (!this.lifecycleCallback) {
+      return;
+    }
+
     const {
       node,
       lifecycleCallback
@@ -56,6 +61,7 @@ export default class PageStack {
     this.pageList = new PageNode();
     this.lastDisplayPage = null;
     this.mergeQueryToProps = false;
+    this.debug = false;
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router || null;
     this.mergeQueryToProps = mergeQueryToProps;
@@ -86,7 +92,7 @@ export default class PageStack {
 
     const tag = String(this.idGen++);
     const pn = new PageNode(cloneVNode(node, {
-      key: (((_b = (_a = node.props) === null || _a === void 0 ? void 0 : _a.key) === null || _b === void 0 ? void 0 : _b.toString()) || '') + tag
+      key: (((_b = (_a = node.props) === null || _a === void 0 ? void 0 : _a.key) === null || _b === void 0 ? void 0 : _b.toString()) || "") + tag
     }), this.lifecycleCallback || undefined, tag);
 
     if (link) {
@@ -97,8 +103,8 @@ export default class PageStack {
 
     state.curNode = tag;
     pn.state = state;
-    pn.moveTo('onCreate');
-    pn.moveTo('onResume', true);
+    pn.moveTo("onCreate");
+    pn.moveTo("onResume", true);
     return pn;
   }
 
@@ -139,9 +145,9 @@ export default class PageStack {
 
     this.iterPage(fromPage, p => {
       if (p.node) {
-        p.moveTo('beforeDestory');
+        p.moveTo("beforeDestory");
         ctx.destory(p.node);
-        p.moveTo('onDestory');
+        p.moveTo("onDestory");
       }
     }, true);
 
@@ -162,14 +168,20 @@ export default class PageStack {
     });
   }
 
-  debugPageStack(msg) {// let str = '';
-    // this.iterPage(this.pageList.next, function (p) {
-    //   if (str) {
-    //     str += ' | ';
-    //   }
-    //   str += `${p.node ? `${(p.node.key as string)}-${p.lifeState}` : ''}`;
-    // });
-    // console.log(msg, str);
+  debugPageStack(msg) {
+    if (!this.debug) {
+      return;
+    }
+
+    let str = "";
+    this.iterPage(this.pageList.next, function (p) {
+      if (str) {
+        str += " | ";
+      }
+
+      str += `${p.node ? `${p.node.key}-${p.lifeState}` : ""}`;
+    });
+    console.log(msg, str);
   }
 
   updateVNode(oldNode, newNode) {
@@ -202,13 +214,13 @@ export default class PageStack {
   }
 
   evaluate(node, ctx) {
-    this.debugPageStack('before');
+    this.debugPageStack("页面切换前");
 
     const n = this._evaluate(node, ctx);
 
-    this.debugPageStack('after evaluate');
+    this.debugPageStack("页面切换后");
     setTimeout(() => {
-      this.debugPageStack('post evaluate');
+      this.debugPageStack("页面切换并渲染后");
     }, 0);
     return n;
   }
@@ -228,16 +240,16 @@ export default class PageStack {
   getAction() {
     const state = history.state;
 
-    if (!state || typeof state !== 'object' || !Reflect.has(state, 'position')) {
-      return 'unknown';
+    if (!state || typeof state !== "object" || !Reflect.has(state, "position")) {
+      return "unknown";
     }
 
     if (!this.lastDisplayPage) {
-      return 'init';
+      return "init";
     }
 
     if (!this.lastDisplayPage.state) {
-      return 'unknown';
+      return "unknown";
     }
 
     const {
@@ -249,14 +261,14 @@ export default class PageStack {
     } = this.lastDisplayPage.state; //6
 
     if (targetPosition > curPosition) {
-      return 'forword';
+      return "forword";
     }
 
     if (targetPosition < curPosition) {
-      return 'back';
+      return "back";
     }
 
-    return 'replace';
+    return "replace";
   }
 
   onRenderVNode(slot) {
@@ -276,7 +288,7 @@ export default class PageStack {
     const node = this.setRouteProps(n);
     const state = history.state;
 
-    if (!state || typeof state !== 'object' || !Reflect.has(state, 'position')) {
+    if (!state || typeof state !== "object" || !Reflect.has(state, "position")) {
       return n;
     }
 
@@ -287,8 +299,8 @@ export default class PageStack {
         curNode
       } = state;
 
-      if (action === 'forword') {
-        this.lastDisplayPage.moveTo('onPause');
+      if (action === "forword") {
+        this.lastDisplayPage.moveTo("onPause");
         const pn = this.createPage(node, state);
         this.lastDisplayPage = pn;
         ctx.cacheNode(pn.node);
@@ -297,7 +309,7 @@ export default class PageStack {
 
       const oldPage = this.findPageNode(curNode); // 回退，旧页面可以复用
 
-      if (action === 'back' && oldPage && oldPage.node && same(oldPage.node, node)) {
+      if (action === "back" && oldPage && oldPage.node && same(oldPage.node, node)) {
         const oldNode = oldPage.node;
         oldPage.node = ctx.reuseNode(this.copyKeyProps(oldPage, node), oldPage.node);
 
@@ -306,14 +318,14 @@ export default class PageStack {
           this.destoryPageAsync(ctx, dp);
           this.lastDisplayPage = oldPage;
           oldPage.updateState(state);
-          oldPage.moveTo('onResume', true);
+          oldPage.moveTo("onResume", true);
           return oldPage.node;
         }
 
         oldPage.node = oldNode;
       }
 
-      if (action === 'replace') {
+      if (action === "replace") {
         // replace
         const oldPage = this.findPageNode(this.lastDisplayPage.tag);
 
@@ -326,7 +338,7 @@ export default class PageStack {
             this.destoryPageAsync(ctx, dp);
             this.lastDisplayPage = oldPage;
             oldPage.updateState(state);
-            oldPage.moveTo('onResume', true);
+            oldPage.moveTo("onResume", true);
             return oldPage.node;
           }
 
