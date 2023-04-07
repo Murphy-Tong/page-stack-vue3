@@ -7,8 +7,10 @@
 <img src="./example/demo.gif" width="30%"/>
 
 ### preview
-[online](https://murphy-tong.github.io/ps/#/)
-[example](./example/)
+[在线预览](https://murphy-tong.github.io/ps/#/)
+
+
+[示例代码](./example/)
 
 ### Usage：
 
@@ -38,7 +40,7 @@
                 <RouterView>
                     {function({Component,route}: {Component: VNode;route:RouteLocation}) {
                         return (
-                            <PageStack ref={psRef} disableAnimation={true} lifeCycleCallback={lifeCb}>
+                            <PageStack ref={psRef} lifeCycleCallback={lifeCb}>
                                 {Component && cloneVNode(Component, { key: route.path })}
                             </PageStack>
                         );
