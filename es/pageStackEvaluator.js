@@ -56,34 +56,41 @@ function same(n1, n2) {
 }
 
 export class PageStackEvaluator {
-  constructor(router, depthRef, mergeQueryToProps = false, lifecycleCallback) {
+  constructor(router, mergeQueryToProps = false, lifecycleCallback) {
     this.idGen = new Date().valueOf();
     this.pageList = new PageNode();
     this.lastDisplayPage = null;
     this.mergeQueryToProps = false;
     this.routerChanged = false;
     this.debug = false;
-    this.depthRef = depthRef;
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
     this.setListener();
   }
 
+  checkRouterChanged(to, from) {
+    let depth = 0;
+    let cmp = to.matched[depth];
+
+    while (cmp && !cmp.components) {
+      depth++;
+      cmp = to.matched[depth];
+    }
+
+    if (to.matched[depth + 1]) {
+      const toFirstMatched = to.matched[depth];
+      const fromFirstMatched = from.matched[depth];
+      this.setRouterChanged(toFirstMatched !== fromFirstMatched || !toFirstMatched);
+    } else {
+      this.setRouterChanged(true);
+    }
+  }
+
   setListener() {
     if (this.router) {
       this.router.beforeEach((to, from) => {
-        var _a;
-
-        const rootRouterViewDepth = Math.max(((_a = this.depthRef) === null || _a === void 0 ? void 0 : _a.value) || 1 - 1, 0);
-
-        if (to.matched[rootRouterViewDepth + 1]) {
-          const toFirstMatched = to.matched[rootRouterViewDepth];
-          const fromFirstMatched = from.matched[rootRouterViewDepth];
-          this.setRouterChanged(toFirstMatched !== fromFirstMatched || !toFirstMatched);
-        } else {
-          this.setRouterChanged(true);
-        }
+        this.checkRouterChanged(to, from);
       });
     } else {
       console.warn("传入router以便组件判断页面跳转");

@@ -1,6 +1,6 @@
 import { createVNode as _createVNode } from "vue";
-import { defineComponent, inject, Transition } from "vue";
-import { viewDepthKey, useRouter } from "vue-router";
+import { defineComponent, Transition } from "vue";
+import { useRouter } from "vue-router";
 import { ComponentCache, Props } from "./componentCache";
 import "./index.css";
 import { PageStackEvaluator } from "./pageStackEvaluator";
@@ -37,7 +37,7 @@ export default defineComponent({
   }),
 
   setup(props, ctx) {
-    const evaluator = props.componentEvaluator || new PageStackEvaluator(props.router || useRouter(), inject(viewDepthKey), props.mergeQueryToProps, props.lifeCycleCallback);
+    const evaluator = props.componentEvaluator || new PageStackEvaluator(props.router || useRouter(), props.mergeQueryToProps, props.lifeCycleCallback);
     evaluator.debug = props.debug;
     ctx.expose({
       getPageSize: props.componentEvaluator ? () => {

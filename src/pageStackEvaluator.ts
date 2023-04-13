@@ -94,25 +94,32 @@ export class PageStackEvaluator implements ComponentEvaluator {
     this.setListener();
   }
 
+  protected checkRouterChanged(
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized
+  ) {
+    let depth = 0;
+    let cmp = to.matched[depth];
+    while (cmp && !cmp.components) {
+      depth++;
+      cmp = to.matched[depth];
+    }
+    if (to.matched[depth + 1]) {
+      const toFirstMatched = to.matched[depth];
+      const fromFirstMatched = from.matched[depth];
+      this.setRouterChanged(
+        toFirstMatched !== fromFirstMatched || !toFirstMatched
+      );
+    } else {
+      this.setRouterChanged(true);
+    }
+  }
+
   protected setListener() {
     if (this.router) {
       this.router.beforeEach(
         (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-          let depth = 0;
-          let cmp = to.matched[depth];
-          while (cmp && !cmp.components) {
-            depth++;
-            cmp = to.matched[depth];
-          }
-          if (to.matched[depth + 1]) {
-            const toFirstMatched = to.matched[depth];
-            const fromFirstMatched = from.matched[depth];
-            this.setRouterChanged(
-              toFirstMatched !== fromFirstMatched || !toFirstMatched
-            );
-          } else {
-            this.setRouterChanged(true);
-          }
+          this.checkRouterChanged(to, from);
         }
       );
     } else {

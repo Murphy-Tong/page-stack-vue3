@@ -1,5 +1,5 @@
-import { Ref, Slot, VNode } from "vue";
-import { Router } from "vue-router";
+import { Slot, VNode } from "vue";
+import { RouteLocationNormalized, Router } from "vue-router";
 import { CacheContext, ComponentEvaluator } from "./componentCache";
 export declare type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
 export declare type RenderSlotProps = {
@@ -36,9 +36,9 @@ export declare class PageStackEvaluator implements ComponentEvaluator {
     private routerChanged;
     router: Router;
     lifecycleCallback: LifecycleCallback | null;
-    protected depthRef: Ref<number>;
     debug: boolean;
-    constructor(router: Router, depthRef: Ref<number>, mergeQueryToProps: boolean, lifecycleCallback: LifecycleCallback | undefined);
+    constructor(router: Router, mergeQueryToProps: boolean, lifecycleCallback: LifecycleCallback | undefined);
+    protected checkRouterChanged(to: RouteLocationNormalized, from: RouteLocationNormalized): void;
     protected setListener(): void;
     isRouterChanged(): boolean;
     setRouterChanged(routerChanged: boolean): void;
