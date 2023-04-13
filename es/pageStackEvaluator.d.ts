@@ -1,4 +1,4 @@
-import { Slot, VNode } from "vue";
+import { Ref, Slot, VNode } from "vue";
 import { Router } from "vue-router";
 import { CacheContext, ComponentEvaluator } from "./componentCache";
 export declare type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
@@ -36,9 +36,10 @@ export declare class PageStackEvaluator implements ComponentEvaluator {
     private routerChanged;
     router: Router;
     lifecycleCallback: LifecycleCallback | null;
+    protected depthRef: Ref<number>;
     debug: boolean;
-    constructor(router: Router, mergeQueryToProps: boolean, lifecycleCallback: LifecycleCallback | undefined);
-    setListener(): void;
+    constructor(router: Router, depthRef: Ref<number>, mergeQueryToProps: boolean, lifecycleCallback: LifecycleCallback | undefined);
+    protected setListener(): void;
     isRouterChanged(): boolean;
     setRouterChanged(routerChanged: boolean): void;
     protected getLastPageNode(subPage?: PageNode): PageNode;
@@ -62,35 +63,35 @@ export declare class PageStackEvaluator implements ComponentEvaluator {
     onRenderVNode(slot: Slot): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onForward(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onForward(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onUpdateWithRouterNoChange(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onUpdateWithRouterNoChange(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onUpdateWithRouterNoChangeFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onUpdateWithRouterNoChangeFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
     private _evaluate;
     /**
      * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
      */
-    onBack(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onBack(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onBackFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onBackFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onReplace(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onReplace(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onUnknown(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onUnknown(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    onInitPage(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onInitPage(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
     reset(ctx: CacheContext): void;
-    onReset(ctx: CacheContext): void;
+    protected onReset(ctx: CacheContext): void;
 }
 export {};

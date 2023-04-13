@@ -1,5 +1,5 @@
-import { cloneVNode, queuePostFlushCb, Slot, VNode } from "vue";
-import { Router } from "vue-router";
+import { cloneVNode, queuePostFlushCb, Ref, Slot, VNode } from "vue";
+import { RouteLocationNormalized, Router } from "vue-router";
 import { CacheContext, ComponentEvaluator } from "./componentCache";
 
 export type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
@@ -80,25 +80,42 @@ export class PageStackEvaluator implements ComponentEvaluator {
   private routerChanged = false;
   public router: Router;
   public lifecycleCallback: LifecycleCallback | null;
+  protected depthRef: Ref<number>;
 
   debug = false;
 
   constructor(
     router: Router,
+    depthRef: Ref<number>,
     mergeQueryToProps = false,
     lifecycleCallback: LifecycleCallback | undefined
   ) {
+    this.depthRef = depthRef;
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
     this.setListener();
   }
 
-  setListener() {
+  protected setListener() {
     if (this.router) {
-      this.router.beforeEach(() => {
-        this.setRouterChanged(true);
-      });
+      this.router.beforeEach(
+        (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
+          const rootRouterViewDepth = Math.max(
+            this.depthRef?.value || 1 - 1,
+            0
+          );
+          if (to.matched[rootRouterViewDepth + 1]) {
+            const toFirstMatched = to.matched[rootRouterViewDepth];
+            const fromFirstMatched = from.matched[rootRouterViewDepth];
+            this.setRouterChanged(
+              toFirstMatched !== fromFirstMatched || !toFirstMatched
+            );
+          } else {
+            this.setRouterChanged(true);
+          }
+        }
+      );
     } else {
       console.warn("传入router以便组件判断页面跳转");
     }
@@ -134,7 +151,12 @@ export class PageStackEvaluator implements ComponentEvaluator {
   protected createPage(node: VNode, state: State, link = true) {
     const tag = String(this.idGen++);
     const pn = new PageNode(
-      cloneVNode(node, { key: (node.props?.key?.toString() || "") + tag }),
+      cloneVNode(node, {
+        key:
+          node.props?.key && typeof node.props?.key === "string"
+            ? `${node.props?.key}-${tag}`
+            : tag,
+      }),
       this.lifecycleCallback || undefined,
       tag
     );
@@ -310,7 +332,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return slot({ action })?.[0];
   }
 
-  onForward(newNode: VNode, state: any, ctx: CacheContext) {
+  protected onForward(newNode: VNode, state: any, ctx: CacheContext) {
     this.lastDisplayPage!.moveTo("onPause");
     const pn = this.createPage(newNode, state);
     this.lastDisplayPage = pn;
@@ -318,7 +340,11 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return pn.node!;
   }
 
-  onUpdateWithRouterNoChange(newNode: VNode, state: any, ctx: CacheContext) {
+  protected onUpdateWithRouterNoChange(
+    newNode: VNode,
+    state: any,
+    ctx: CacheContext
+  ) {
     // 当前显示的页面
     const oldPage = this.findPageNode(this.lastDisplayPage!.tag!);
     if (!oldPage?.node || !same(newNode, oldPage?.node)) {
@@ -337,7 +363,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return this.onUpdateWithRouterNoChangeFailed(newNode, state, ctx);
   }
 
-  onUpdateWithRouterNoChangeFailed(
+  protected onUpdateWithRouterNoChangeFailed(
     newNode: VNode,
     state: any,
     ctx: CacheContext
@@ -388,7 +414,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
   /**
    * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
    */
-  onBack(newNode: VNode, state: any, ctx: CacheContext) {
+  protected onBack(newNode: VNode, state: any, ctx: CacheContext) {
     const { curNode } = state;
     // 找到返回的页面
     const oldPage = this.findPageNode(curNode);
@@ -414,11 +440,11 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return this.onBackFailed(newNode, state, ctx);
   }
 
-  onBackFailed(newNode: VNode, state: any, ctx: CacheContext) {
+  protected onBackFailed(newNode: VNode, state: any, ctx: CacheContext) {
     return this.onUnknown(newNode, state, ctx);
   }
 
-  onReplace(newNode: VNode, state: any, ctx: CacheContext) {
+  protected onReplace(newNode: VNode, state: any, ctx: CacheContext) {
     // 当前显示的页面
     const oldPage = this.findPageNode(this.lastDisplayPage!.tag!);
     // 从链表中断开
@@ -431,7 +457,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return this.lastDisplayPage.node!;
   }
 
-  onUnknown(node: VNode, state: any, ctx: CacheContext) {
+  protected onUnknown(node: VNode, state: any, ctx: CacheContext) {
     // 销毁所有的页面
     const destoryPage = this.removeNode(this.pageList.next!);
     this.destoryPageAsync(ctx, destoryPage!);
@@ -442,7 +468,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return this.lastDisplayPage.node!;
   }
 
-  onInitPage(node: VNode, state: any, ctx: CacheContext) {
+  protected onInitPage(node: VNode, state: any, ctx: CacheContext) {
     return this.onUnknown(node, state, ctx);
   }
 
@@ -452,5 +478,5 @@ export class PageStackEvaluator implements ComponentEvaluator {
     this.destoryPage(this.pageList, ctx);
   }
 
-  public onReset(ctx: CacheContext) {}
+  protected onReset(ctx: CacheContext) {}
 }

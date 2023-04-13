@@ -1,12 +1,12 @@
-import { defineComponent, PropType, Transition } from "vue";
-import { Router, useRouter } from "vue-router";
+import { defineComponent, inject, PropType, Ref, Transition } from "vue";
+import { Router, viewDepthKey, useRouter } from "vue-router";
 import { ComponentCache, ComponentEvaluator, Props } from "./componentCache";
+import "./index.css";
 import {
-  PageStackEvaluator,
   LifecycleCallback,
+  PageStackEvaluator,
   RenderSlotProps,
 } from "./pageStackEvaluator";
-import "./index.css";
 
 export * from "./componentCache";
 export * from "./pageStackEvaluator";
@@ -47,6 +47,7 @@ export default defineComponent({
       props.componentEvaluator ||
       new PageStackEvaluator(
         props.router || useRouter(),
+        inject(viewDepthKey) as Ref<number>,
         props.mergeQueryToProps,
         props.lifeCycleCallback
       );
@@ -61,6 +62,7 @@ export default defineComponent({
           }
         : (evaluator as PageStackEvaluator).size.bind(evaluator),
     });
+
     return function () {
       return (
         <ComponentCache componentEvaluator={evaluator}>

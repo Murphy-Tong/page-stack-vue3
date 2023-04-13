@@ -40,7 +40,7 @@
                 <RouterView>
                     {function({Component,route}: {Component: VNode;route:RouteLocation}) {
                         return (
-                            <PageStack ref={psRef} lifeCycleCallback={lifeCb}>
+                            <PageStack ref="psRef" lifeCycleCallback={lifeCb}>
                                 {Component && cloneVNode(Component, { key: route.path })}
                             </PageStack>
                         );
@@ -88,6 +88,7 @@
 2.  本组件会重写页面组件的key
 3.  本组件内部模仿了keep-alive的实现，所以页面组件的生命周期同[keep-alive](https://cn.vuejs.org/)
 4.  虽然没有hack vue，但是使用了vue的私有api，所以不保证兼容所有的vue3版本，如果你的vue版本用不了这个库，那就是用不了。可以提issues。
+5.  暂不支持作为被嵌套的路由使用
    
 
 

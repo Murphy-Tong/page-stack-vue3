@@ -56,13 +56,14 @@ function same(n1, n2) {
 }
 
 export class PageStackEvaluator {
-  constructor(router, mergeQueryToProps = false, lifecycleCallback) {
+  constructor(router, depthRef, mergeQueryToProps = false, lifecycleCallback) {
     this.idGen = new Date().valueOf();
     this.pageList = new PageNode();
     this.lastDisplayPage = null;
     this.mergeQueryToProps = false;
     this.routerChanged = false;
     this.debug = false;
+    this.depthRef = depthRef;
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
@@ -71,8 +72,18 @@ export class PageStackEvaluator {
 
   setListener() {
     if (this.router) {
-      this.router.beforeEach(() => {
-        this.setRouterChanged(true);
+      this.router.beforeEach((to, from) => {
+        var _a;
+
+        const rootRouterViewDepth = Math.max(((_a = this.depthRef) === null || _a === void 0 ? void 0 : _a.value) || 1 - 1, 0);
+
+        if (to.matched[rootRouterViewDepth + 1]) {
+          const toFirstMatched = to.matched[rootRouterViewDepth];
+          const fromFirstMatched = from.matched[rootRouterViewDepth];
+          this.setRouterChanged(toFirstMatched !== fromFirstMatched || !toFirstMatched);
+        } else {
+          this.setRouterChanged(true);
+        }
       });
     } else {
       console.warn("传入router以便组件判断页面跳转");
@@ -112,11 +123,11 @@ export class PageStackEvaluator {
   }
 
   createPage(node, state, link = true) {
-    var _a, _b;
+    var _a, _b, _c;
 
     const tag = String(this.idGen++);
     const pn = new PageNode(cloneVNode(node, {
-      key: (((_b = (_a = node.props) === null || _a === void 0 ? void 0 : _a.key) === null || _b === void 0 ? void 0 : _b.toString()) || "") + tag
+      key: ((_a = node.props) === null || _a === void 0 ? void 0 : _a.key) && typeof ((_b = node.props) === null || _b === void 0 ? void 0 : _b.key) === "string" ? `${(_c = node.props) === null || _c === void 0 ? void 0 : _c.key}-${tag}` : tag
     }), this.lifecycleCallback || undefined, tag);
 
     if (link) {
