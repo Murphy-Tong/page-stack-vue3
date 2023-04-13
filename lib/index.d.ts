@@ -1,10 +1,10 @@
 import { PropType } from "vue";
 import { Router } from "vue-router";
 import { ComponentEvaluator } from "./componentCache";
-import { LifecycleCallback } from "./pageStack";
+import { LifecycleCallback } from "./pageStackEvaluator";
 import "./index.css";
 export * from "./componentCache";
-export * from "./pageStack";
+export * from "./pageStackEvaluator";
 declare const _default: import("vue").DefineComponent<{
     debug: {
         type: BooleanConstructor;

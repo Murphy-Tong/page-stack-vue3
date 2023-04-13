@@ -141,7 +141,7 @@ function cacheableNode(node?: VNode) {
   return true;
 }
 
-export default defineComponent({
+export const ComponentCache = defineComponent({
   __isKeepAlive: true,
   props: {
     ...Props,

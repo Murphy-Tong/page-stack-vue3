@@ -72,21 +72,21 @@ export interface LifecycleCallback {
   onDestory?(node: VNode): void;
 }
 
-export default class PageStack implements ComponentEvaluator {
+export class PageStackEvaluator implements ComponentEvaluator {
   protected idGen = new Date().valueOf();
   protected pageList = new PageNode();
   protected lastDisplayPage: PageNode | null = null;
   protected mergeQueryToProps = false;
-  protected routerChanged = false;
+  private routerChanged = false;
   public router: Router;
   public lifecycleCallback: LifecycleCallback | null;
 
   debug = false;
 
   constructor(
-    lifecycleCallback: LifecycleCallback | undefined,
     router: Router,
-    mergeQueryToProps = false
+    mergeQueryToProps = false,
+    lifecycleCallback: LifecycleCallback | undefined
   ) {
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
@@ -95,10 +95,24 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   setListener() {
-    this.router.beforeEach(() => {
-      console.log("routerChanged");
-      this.routerChanged = true;
-    });
+    if (this.router) {
+      this.router.beforeEach(() => {
+        this.setRouterChanged(true);
+      });
+    } else {
+      console.warn("传入router以便组件判断页面跳转");
+    }
+  }
+
+  isRouterChanged() {
+    if (!this.router) {
+      return true;
+    }
+    return this.routerChanged;
+  }
+
+  setRouterChanged(routerChanged: boolean) {
+    this.routerChanged = routerChanged;
   }
 
   protected getLastPageNode(subPage?: PageNode) {
@@ -242,9 +256,9 @@ export default class PageStack implements ComponentEvaluator {
     if (this.debug) {
       console.log("-----------------");
     }
-    this.debugPageStack("页面切换前 routerChanged : " + this.routerChanged);
+    this.debugPageStack("页面切换前 routerChanged : " + this.isRouterChanged());
     const n = this._evaluate(node, ctx);
-    this.debugPageStack("页面切换后 routerChanged: " + this.routerChanged);
+    this.debugPageStack("页面切换后 routerChanged: " + this.isRouterChanged());
     setTimeout(() => {
       this.debugPageStack("页面切换并渲染后");
       if (this.debug) {
@@ -345,13 +359,13 @@ export default class PageStack implements ComponentEvaluator {
     }
     const node = this.setRouteProps(n);
     if (!this.lastDisplayPage) {
-      this.routerChanged = false;
+      this.setRouterChanged(false);
       return this.onInitPage(node, state, ctx);
     }
-    if (!this.routerChanged) {
+    if (!this.isRouterChanged()) {
       return this.onUpdateWithRouterNoChange(node, state, ctx);
     }
-    this.routerChanged = false;
+    this.setRouterChanged(false);
     const action = this.getAction();
     if (action === "init") {
       return this.onInitPage(node, state, ctx);

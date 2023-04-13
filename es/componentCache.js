@@ -117,7 +117,7 @@ function cacheableNode(node) {
   return true;
 }
 
-export default defineComponent({
+export const ComponentCache = defineComponent({
   __isKeepAlive: true,
   props: Object.assign(Object.assign({}, Props), {
     componentEvaluator: {

@@ -1,11 +1,15 @@
 import { defineComponent, PropType, Transition } from "vue";
 import { Router, useRouter } from "vue-router";
-import ComponentCache, { ComponentEvaluator, Props } from "./componentCache";
-import PageStack, { LifecycleCallback, RenderSlotProps } from "./pageStack";
+import { ComponentCache, ComponentEvaluator, Props } from "./componentCache";
+import {
+  PageStackEvaluator,
+  LifecycleCallback,
+  RenderSlotProps,
+} from "./pageStackEvaluator";
 import "./index.css";
 
 export * from "./componentCache";
-export * from "./pageStack";
+export * from "./pageStackEvaluator";
 
 const TRANSITION_NAME_IN = "ps-slide-in";
 const TRANSITION_NAME_OUT = "ps-slide-out";
@@ -41,10 +45,10 @@ export default defineComponent({
   setup(props, ctx) {
     const evaluator =
       props.componentEvaluator ||
-      new PageStack(
-        props.lifeCycleCallback,
+      new PageStackEvaluator(
         props.router || useRouter(),
-        props.mergeQueryToProps
+        props.mergeQueryToProps,
+        props.lifeCycleCallback
       );
     evaluator.debug = props.debug;
     ctx.expose({
@@ -55,7 +59,7 @@ export default defineComponent({
             }
             throw new Error("自定义的 componentEvaluator 请自己实现size方法");
           }
-        : (evaluator as PageStack).size.bind(evaluator),
+        : (evaluator as PageStackEvaluator).size.bind(evaluator),
     });
     return function () {
       return (

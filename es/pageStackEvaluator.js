@@ -55,8 +55,8 @@ function same(n1, n2) {
   return (n1 === null || n1 === void 0 ? void 0 : n1.type) === (n2 === null || n2 === void 0 ? void 0 : n2.type);
 }
 
-export default class PageStack {
-  constructor(lifecycleCallback, router, mergeQueryToProps = false) {
+export class PageStackEvaluator {
+  constructor(router, mergeQueryToProps = false, lifecycleCallback) {
     this.idGen = new Date().valueOf();
     this.pageList = new PageNode();
     this.lastDisplayPage = null;
@@ -70,10 +70,25 @@ export default class PageStack {
   }
 
   setListener() {
-    this.router.beforeEach(() => {
-      console.log("routerChanged");
-      this.routerChanged = true;
-    });
+    if (this.router) {
+      this.router.beforeEach(() => {
+        this.setRouterChanged(true);
+      });
+    } else {
+      console.warn("传入router以便组件判断页面跳转");
+    }
+  }
+
+  isRouterChanged() {
+    if (!this.router) {
+      return true;
+    }
+
+    return this.routerChanged;
+  }
+
+  setRouterChanged(routerChanged) {
+    this.routerChanged = routerChanged;
   }
 
   getLastPageNode(subPage) {
@@ -227,11 +242,11 @@ export default class PageStack {
       console.log("-----------------");
     }
 
-    this.debugPageStack("页面切换前 routerChanged : " + this.routerChanged);
+    this.debugPageStack("页面切换前 routerChanged : " + this.isRouterChanged());
 
     const n = this._evaluate(node, ctx);
 
-    this.debugPageStack("页面切换后 routerChanged: " + this.routerChanged);
+    this.debugPageStack("页面切换后 routerChanged: " + this.isRouterChanged());
     setTimeout(() => {
       this.debugPageStack("页面切换并渲染后");
 
@@ -342,15 +357,15 @@ export default class PageStack {
     const node = this.setRouteProps(n);
 
     if (!this.lastDisplayPage) {
-      this.routerChanged = false;
+      this.setRouterChanged(false);
       return this.onInitPage(node, state, ctx);
     }
 
-    if (!this.routerChanged) {
+    if (!this.isRouterChanged()) {
       return this.onUpdateWithRouterNoChange(node, state, ctx);
     }
 
-    this.routerChanged = false;
+    this.setRouterChanged(false);
     const action = this.getAction();
 
     if (action === "init") {

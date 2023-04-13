@@ -43,7 +43,7 @@ export declare const Props: {
         default: boolean;
     };
 };
-declare const _default: import("vue").DefineComponent<{
+export declare const ComponentCache: import("vue").DefineComponent<{
     componentEvaluator: {
         type: PropType<ComponentEvaluator>;
         default: () => ComponentEvaluator;
@@ -99,4 +99,3 @@ declare const _default: import("vue").DefineComponent<{
     componentEvaluator: ComponentEvaluator;
     saveStatus: boolean;
 }>;
-export default _default;

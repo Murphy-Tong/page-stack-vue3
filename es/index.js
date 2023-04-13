@@ -1,11 +1,11 @@
 import { createVNode as _createVNode } from "vue";
 import { defineComponent, Transition } from "vue";
 import { useRouter } from "vue-router";
-import ComponentCache, { Props } from "./componentCache";
-import PageStack from "./pageStack";
+import { ComponentCache, Props } from "./componentCache";
+import { PageStackEvaluator } from "./pageStackEvaluator";
 import "./index.css";
 export * from "./componentCache";
-export * from "./pageStack";
+export * from "./pageStackEvaluator";
 const TRANSITION_NAME_IN = "ps-slide-in";
 const TRANSITION_NAME_OUT = "ps-slide-out";
 export default defineComponent({
@@ -37,7 +37,7 @@ export default defineComponent({
   }),
 
   setup(props, ctx) {
-    const evaluator = props.componentEvaluator || new PageStack(props.lifeCycleCallback, props.router || useRouter(), props.mergeQueryToProps);
+    const evaluator = props.componentEvaluator || new PageStackEvaluator(props.router || useRouter(), props.mergeQueryToProps, props.lifeCycleCallback);
     evaluator.debug = props.debug;
     ctx.expose({
       getPageSize: props.componentEvaluator ? () => {

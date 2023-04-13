@@ -28,17 +28,19 @@ export interface LifecycleCallback {
     beforeDestory?(node: VNode): void;
     onDestory?(node: VNode): void;
 }
-export default class PageStack implements ComponentEvaluator {
+export declare class PageStackEvaluator implements ComponentEvaluator {
     protected idGen: number;
     protected pageList: PageNode;
     protected lastDisplayPage: PageNode | null;
     protected mergeQueryToProps: boolean;
-    protected routerChanged: boolean;
+    private routerChanged;
     router: Router;
     lifecycleCallback: LifecycleCallback | null;
     debug: boolean;
-    constructor(lifecycleCallback: LifecycleCallback | undefined, router: Router, mergeQueryToProps?: boolean);
+    constructor(router: Router, mergeQueryToProps: boolean, lifecycleCallback: LifecycleCallback | undefined);
     setListener(): void;
+    isRouterChanged(): boolean;
+    setRouterChanged(routerChanged: boolean): void;
     protected getLastPageNode(subPage?: PageNode): PageNode;
     protected findPageNode(tag: string): PageNode;
     protected createPage(node: VNode, state: State, link?: boolean): PageNode;
