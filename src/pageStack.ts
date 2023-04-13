@@ -57,11 +57,11 @@ class PageNode {
   }
 }
 
-function same(n1: VNode, n2: VNode) {
+function same(n1?: VNode | null, n2?: VNode | null) {
   if (n1 === n2) {
     return true;
   }
-  return n1.type === n2.type;
+  return n1?.type === n2?.type;
 }
 
 export interface LifecycleCallback {
@@ -73,25 +73,32 @@ export interface LifecycleCallback {
 }
 
 export default class PageStack implements ComponentEvaluator {
-  private idGen = new Date().valueOf();
-  private pageList = new PageNode();
-  private lastDisplayPage: PageNode | null = null;
-  private mergeQueryToProps = false;
-
-  public router: Router | null;
-
+  protected idGen = new Date().valueOf();
+  protected pageList = new PageNode();
+  protected lastDisplayPage: PageNode | null = null;
+  protected mergeQueryToProps = false;
+  protected routerChanged = false;
+  public router: Router;
   public lifecycleCallback: LifecycleCallback | null;
 
   debug = false;
 
   constructor(
-    lifecycleCallback?: LifecycleCallback,
-    router?: Router,
+    lifecycleCallback: LifecycleCallback | undefined,
+    router: Router,
     mergeQueryToProps = false
   ) {
     this.lifecycleCallback = lifecycleCallback || null;
-    this.router = router || null;
+    this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
+    this.setListener();
+  }
+
+  setListener() {
+    this.router.beforeEach(() => {
+      console.log("routerChanged");
+      this.routerChanged = true;
+    });
   }
 
   protected getLastPageNode(subPage?: PageNode) {
@@ -232,11 +239,17 @@ export default class PageStack implements ComponentEvaluator {
   }
 
   evaluate(node: VNode, ctx: CacheContext): VNode | null {
-    this.debugPageStack("页面切换前");
+    if (this.debug) {
+      console.log("-----------------");
+    }
+    this.debugPageStack("页面切换前 routerChanged : " + this.routerChanged);
     const n = this._evaluate(node, ctx);
-    this.debugPageStack("页面切换后");
+    this.debugPageStack("页面切换后 routerChanged: " + this.routerChanged);
     setTimeout(() => {
       this.debugPageStack("页面切换并渲染后");
+      if (this.debug) {
+        console.log("-----------------");
+      }
     }, 0);
     return n;
   }
@@ -267,8 +280,8 @@ export default class PageStack implements ComponentEvaluator {
       return "unknown";
     }
 
-    const { position: targetPosition } = state; //4
-    const { position: curPosition } = this.lastDisplayPage.state; //6
+    const { position: targetPosition } = state;
+    const { position: curPosition } = this.lastDisplayPage.state;
     if (targetPosition > curPosition) {
       return "forword";
     }
@@ -283,11 +296,45 @@ export default class PageStack implements ComponentEvaluator {
     return slot({ action })?.[0];
   }
 
+  onForward(newNode: VNode, state: any, ctx: CacheContext) {
+    this.lastDisplayPage!.moveTo("onPause");
+    const pn = this.createPage(newNode, state);
+    this.lastDisplayPage = pn;
+    ctx.cacheNode(pn.node!);
+    return pn.node!;
+  }
+
+  onUpdateWithRouterNoChange(newNode: VNode, state: any, ctx: CacheContext) {
+    // 当前显示的页面
+    const oldPage = this.findPageNode(this.lastDisplayPage!.tag!);
+    if (!oldPage?.node || !same(newNode, oldPage?.node)) {
+      return this.onUnknown(newNode, state, ctx);
+    }
+    const oldNode = oldPage.node;
+    oldPage.node = ctx.reuseNode(
+      this.copyKeyProps(oldPage, newNode),
+      oldPage.node
+    );
+    if (oldPage.node) {
+      return oldPage.node!;
+    }
+    // 返回失败
+    oldPage.node = oldNode;
+    return this.onUpdateWithRouterNoChangeFailed(newNode, state, ctx);
+  }
+
+  onUpdateWithRouterNoChangeFailed(
+    newNode: VNode,
+    state: any,
+    ctx: CacheContext
+  ) {
+    return this.onUnknown(newNode, state, ctx);
+  }
+
   private _evaluate(n: VNode, ctx: CacheContext): VNode | null {
     if (!ctx.cacheable(n)) {
       return n;
     }
-    const node = this.setRouteProps(n);
     const state = history.state;
     if (
       !state ||
@@ -296,82 +343,93 @@ export default class PageStack implements ComponentEvaluator {
     ) {
       return n;
     }
-
+    const node = this.setRouteProps(n);
+    if (!this.lastDisplayPage) {
+      this.routerChanged = false;
+      return this.onInitPage(node, state, ctx);
+    }
+    if (!this.routerChanged) {
+      return this.onUpdateWithRouterNoChange(node, state, ctx);
+    }
+    this.routerChanged = false;
     const action = this.getAction();
+    if (action === "init") {
+      return this.onInitPage(node, state, ctx);
+    }
     if (this.lastDisplayPage && this.lastDisplayPage.state) {
-      const { curNode } = state;
-
       if (action === "forword") {
-        this.lastDisplayPage.moveTo("onPause");
-        const pn = this.createPage(node, state);
-        this.lastDisplayPage = pn;
-        ctx.cacheNode(pn.node!);
-        return pn.node!;
+        return this.onForward(node, state, ctx);
       }
-
-      const oldPage = this.findPageNode(curNode);
-      // 回退，旧页面可以复用
-      if (
-        action === "back" &&
-        oldPage &&
-        oldPage.node &&
-        same(oldPage.node, node)
-      ) {
-        const oldNode = oldPage.node;
-        oldPage.node = ctx.reuseNode(
-          this.copyKeyProps(oldPage, node),
-          oldPage.node
-        );
-        if (oldPage.node) {
-          const dp = this.removeNode(oldPage.next!);
-          this.destoryPageAsync(ctx, dp!);
-          this.lastDisplayPage = oldPage;
-          oldPage.updateState(state);
-          oldPage.moveTo("onResume", true);
-          return oldPage.node!;
-        }
-        oldPage.node = oldNode;
+      if (action === "back") {
+        return this.onBack(node, state, ctx);
       }
-
       if (action === "replace") {
-        // replace
-        const oldPage = this.findPageNode(this.lastDisplayPage.tag!);
-        if (oldPage && oldPage.node && same(oldPage.node, node)) {
-          const oldNode = oldPage.node;
-          oldPage.node = ctx.reuseNode(
-            this.copyKeyProps(oldPage, node),
-            oldPage.node
-          );
-          if (oldPage.node) {
-            const dp = this.removeNode(oldPage.next!);
-            this.destoryPageAsync(ctx, dp!);
-            this.lastDisplayPage = oldPage;
-            oldPage.updateState(state);
-            oldPage.moveTo("onResume", true);
-            return oldPage.node;
-          }
-          oldPage.node = oldNode;
-          const dp = this.removeNode(oldPage);
-          this.destoryPageAsync(ctx, dp);
-          this.lastDisplayPage = this.createPage(node, state);
-          this.lastDisplayPage.node = ctx.cacheNode(this.lastDisplayPage.node!);
-          return this.lastDisplayPage.node;
-        }
-
-        this.destoryPageAsync(ctx, this.removeNode(this.lastDisplayPage));
-        this.lastDisplayPage = this.createPage(node, state);
-        ctx.cacheNode(this.lastDisplayPage.node!);
-        return this.lastDisplayPage.node!;
+        return this.onReplace(node, state, ctx);
       }
     }
+    // unknown 清除掉所有缓存的数据
+    return this.onUnknown(node, state, ctx);
+  }
 
-    // unknown
+  /**
+   * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
+   */
+  onBack(newNode: VNode, state: any, ctx: CacheContext) {
+    const { curNode } = state;
+    // 找到返回的页面
+    const oldPage = this.findPageNode(curNode);
+    // 可以复用的条件是node的类型相同，不比较key
+    if (oldPage && oldPage.node && same(oldPage.node, newNode)) {
+      const oldNode = oldPage.node;
+      oldPage.node = ctx.reuseNode(
+        this.copyKeyProps(oldPage, newNode),
+        oldPage.node
+      );
+      if (oldPage.node) {
+        // 销毁新页面之后的页面
+        const dp = this.removeNode(oldPage.next!);
+        this.destoryPageAsync(ctx, dp!);
+        this.lastDisplayPage = oldPage;
+        oldPage.updateState(state);
+        oldPage.moveTo("onResume", true);
+        return oldPage.node!;
+      }
+      // 返回失败
+      oldPage.node = oldNode;
+    }
+    return this.onBackFailed(newNode, state, ctx);
+  }
+
+  onBackFailed(newNode: VNode, state: any, ctx: CacheContext) {
+    return this.onUnknown(newNode, state, ctx);
+  }
+
+  onReplace(newNode: VNode, state: any, ctx: CacheContext) {
+    // 当前显示的页面
+    const oldPage = this.findPageNode(this.lastDisplayPage!.tag!);
+    // 从链表中断开
+    const dp = this.removeNode(oldPage || this.lastDisplayPage!);
+    // 销毁当前页面以及之后的页面
+    this.destoryPageAsync(ctx, dp || this.lastDisplayPage!);
+    // 创建新的页面节点
+    this.lastDisplayPage = this.createPage(newNode, state);
+    ctx.cacheNode(this.lastDisplayPage.node!);
+    return this.lastDisplayPage.node!;
+  }
+
+  onUnknown(node: VNode, state: any, ctx: CacheContext) {
+    // 销毁所有的页面
     const destoryPage = this.removeNode(this.pageList.next!);
     this.destoryPageAsync(ctx, destoryPage!);
+    // 创建新的
     this.pageList.next = this.createPage(node, state);
     ctx.cacheNode(this.pageList.next.node!);
     this.lastDisplayPage = this.pageList.next;
     return this.lastDisplayPage.node!;
+  }
+
+  onInitPage(node: VNode, state: any, ctx: CacheContext) {
+    return this.onUnknown(node, state, ctx);
   }
 
   reset(ctx: CacheContext): void {

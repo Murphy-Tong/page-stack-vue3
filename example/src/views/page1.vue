@@ -4,6 +4,7 @@
     <h2>count:{{count}}</h2>
     <button class="anim" @click="forward">go next page</button>
     <button class="anim2" @click="back">go back</button>
+    <button class="anim2" @click="replace">replace with page 3</button>
   </div>
 </template>
 
@@ -19,6 +20,7 @@ import router from '@/router';
     }
   },
   mounted() {
+    console.log('------')
     this.timeRef = setInterval(() => this.count = this.count + 1, 1000)
   },
   unmounted() {
@@ -27,6 +29,9 @@ import router from '@/router';
   methods: {
     forward() {
       router.push('/p2')
+    },
+    replace() {
+      router.replace('/p3')
     },
     back() {
       router.go(-1)

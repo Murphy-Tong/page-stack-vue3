@@ -1,5 +1,6 @@
 import { PropType } from "vue";
 import { Router } from "vue-router";
+import { ComponentEvaluator } from "./componentCache";
 import { LifecycleCallback } from "./pageStack";
 import "./index.css";
 export * from "./componentCache";
@@ -24,6 +25,10 @@ declare const _default: import("vue").DefineComponent<{
     disableAnimation: {
         type: BooleanConstructor;
         default: boolean;
+    };
+    componentEvaluator: {
+        type: PropType<ComponentEvaluator>;
+        require: boolean;
     };
     beforePause: {
         type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;
@@ -65,6 +70,10 @@ declare const _default: import("vue").DefineComponent<{
     disableAnimation: {
         type: BooleanConstructor;
         default: boolean;
+    };
+    componentEvaluator: {
+        type: PropType<ComponentEvaluator>;
+        require: boolean;
     };
     beforePause: {
         type: PropType<import("./componentCache").VNodeCacheStateChangeCallback>;

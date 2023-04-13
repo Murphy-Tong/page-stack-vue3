@@ -1,4 +1,10 @@
-import { VNode, PropType, Slot } from "vue";
+import { PropType, Slot, VNode } from "vue";
+declare global {
+    interface Element {
+        ___$__PS_st?: number;
+        ___$__PS_sl?: number;
+    }
+}
 export declare const invokeArrayFns: (fns: Function[], arg?: any) => void;
 export interface CacheContext {
     cacheable: (node: VNode) => boolean;
@@ -8,6 +14,7 @@ export interface CacheContext {
     destory: (node: VNode) => void;
 }
 export interface ComponentEvaluator {
+    debug?: boolean;
     evaluate(currentNode: VNode, ctx: CacheContext): VNode | null;
     reset(ctx: CacheContext): void;
     updateVNode(oldNode: VNode, newNode: VNode): void;

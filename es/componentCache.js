@@ -1,7 +1,6 @@
-import { cloneVNode, getCurrentInstance, isVNode, queuePostFlushCb, defineComponent, onUnmounted, callWithAsyncErrorHandling } from "vue";
+import { callWithAsyncErrorHandling, cloneVNode, defineComponent, getCurrentInstance, isVNode, onUnmounted, queuePostFlushCb } from "vue";
 const FLAG_NEED_KEEP_ALIVE = 1 << 8;
 const FLAG_KEPT_ALIVE = 1 << 9;
-const statusMap = new WeakMap();
 const KEY_EL_STATUS = "___ps_s_s";
 
 function saveStatus(node) {
@@ -13,10 +12,8 @@ function saveStatus(node) {
     return;
   }
 
-  statusMap.set(el, {
-    scrollTop: (_a = document.scrollingElement) === null || _a === void 0 ? void 0 : _a.scrollTop,
-    scrollLeft: (_b = document.scrollingElement) === null || _b === void 0 ? void 0 : _b.scrollLeft
-  });
+  el.___$__PS_st = (_a = document.scrollingElement) === null || _a === void 0 ? void 0 : _a.scrollTop;
+  el.___$__PS_sl = (_b = document.scrollingElement) === null || _b === void 0 ? void 0 : _b.scrollLeft;
   saveStatusEl(el);
 }
 
@@ -44,13 +41,10 @@ function restoreStatus(node) {
   }
 
   restoreStatusEl(el);
-  const status = statusMap.get(el);
 
-  if (document.scrollingElement) {
-    Object.entries(status || {}).forEach(([key, val]) => {
-      //@ts-ignore
-      document.scrollingElement[key] = val;
-    });
+  if (document.scrollingElement && (el.___$__PS_sl || el.___$__PS_st)) {
+    document.scrollingElement.scrollLeft = el.___$__PS_sl || 0;
+    document.scrollingElement.scrollTop = el.___$__PS_st || 0;
   }
 }
 
@@ -73,10 +67,6 @@ function restoreStatusEl(el) {
     //@ts-ignore
     el[key] = val;
   });
-}
-
-function delStatus(node) {
-  statusMap.delete(node.el);
 }
 
 export const invokeArrayFns = (fns, arg) => {
@@ -266,7 +256,6 @@ export default defineComponent({
     };
 
     const destory = function (node) {
-      delStatus(node);
       uncacheNode(node);
 
       _unmount(node, instance, parentSuspense, true);

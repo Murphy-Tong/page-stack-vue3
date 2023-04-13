@@ -29,14 +29,16 @@ export interface LifecycleCallback {
     onDestory?(node: VNode): void;
 }
 export default class PageStack implements ComponentEvaluator {
-    private idGen;
-    private pageList;
-    private lastDisplayPage;
-    private mergeQueryToProps;
-    router: Router | null;
+    protected idGen: number;
+    protected pageList: PageNode;
+    protected lastDisplayPage: PageNode | null;
+    protected mergeQueryToProps: boolean;
+    protected routerChanged: boolean;
+    router: Router;
     lifecycleCallback: LifecycleCallback | null;
     debug: boolean;
-    constructor(lifecycleCallback?: LifecycleCallback, router?: Router, mergeQueryToProps?: boolean);
+    constructor(lifecycleCallback: LifecycleCallback | undefined, router: Router, mergeQueryToProps?: boolean);
+    setListener(): void;
     protected getLastPageNode(subPage?: PageNode): PageNode;
     protected findPageNode(tag: string): PageNode;
     protected createPage(node: VNode, state: State, link?: boolean): PageNode;
@@ -58,7 +60,34 @@ export default class PageStack implements ComponentEvaluator {
     onRenderVNode(slot: Slot): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
+    onForward(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onUpdateWithRouterNoChange(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onUpdateWithRouterNoChangeFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
     private _evaluate;
+    /**
+     * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
+     */
+    onBack(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onBackFailed(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onReplace(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onUnknown(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
+    onInitPage(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+        [key: string]: any;
+    }>;
     reset(ctx: CacheContext): void;
     onReset(ctx: CacheContext): void;
 }

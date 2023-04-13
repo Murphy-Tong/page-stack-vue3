@@ -1,35 +1,37 @@
 import {
-  cloneVNode,
-  Component,
-  getCurrentInstance,
-  isVNode,
-  queuePostFlushCb,
+  PropType,
   SetupContext,
+  Slot,
   Slots,
   VNode,
-  defineComponent,
-  onUnmounted,
   callWithAsyncErrorHandling,
-  PropType,
-  Slot,
+  cloneVNode,
+  defineComponent,
+  getCurrentInstance,
+  isVNode,
+  onUnmounted,
+  queuePostFlushCb,
 } from "vue";
 
 const FLAG_NEED_KEEP_ALIVE = 1 << 8;
 const FLAG_KEPT_ALIVE = 1 << 9;
 
-const statusMap = new WeakMap<Object, any>();
-
 const KEY_EL_STATUS = "___ps_s_s";
+
+declare global {
+  interface Element {
+    ___$__PS_st?: number;
+    ___$__PS_sl?: number;
+  }
+}
 
 function saveStatus(node: VNode) {
   const el = node.el as Element;
   if (!el || el.nodeType !== 1) {
     return;
   }
-  statusMap.set(el, {
-    scrollTop: document.scrollingElement?.scrollTop,
-    scrollLeft: document.scrollingElement?.scrollLeft,
-  });
+  el.___$__PS_st = document.scrollingElement?.scrollTop;
+  el.___$__PS_sl = document.scrollingElement?.scrollLeft;
   saveStatusEl(el);
 }
 
@@ -53,12 +55,9 @@ function restoreStatus(node: VNode) {
     return;
   }
   restoreStatusEl(el);
-  const status = statusMap.get(el);
-  if (document.scrollingElement) {
-    Object.entries(status || {}).forEach(([key, val]) => {
-      //@ts-ignore
-      document.scrollingElement[key] = val;
-    });
+  if (document.scrollingElement && (el.___$__PS_sl || el.___$__PS_st)) {
+    document.scrollingElement.scrollLeft = el.___$__PS_sl || 0;
+    document.scrollingElement.scrollTop = el.___$__PS_st || 0;
   }
 }
 
@@ -79,10 +78,6 @@ function restoreStatusEl(el: Element) {
   });
 }
 
-function delStatus(node: VNode) {
-  statusMap.delete(node.el!);
-}
-
 export const invokeArrayFns = (fns: Function[], arg?: any) => {
   for (let i = 0; i < fns.length; i++) {
     fns[i](arg);
@@ -98,6 +93,7 @@ export interface CacheContext {
 }
 
 export interface ComponentEvaluator {
+  debug?: boolean;
   evaluate(currentNode: VNode, ctx: CacheContext): VNode | null;
   reset(ctx: CacheContext): void;
   updateVNode(oldNode: VNode, newNode: VNode): void;
@@ -281,7 +277,6 @@ export default defineComponent({
     };
 
     const destory = function (node: VNode) {
-      delStatus(node);
       uncacheNode(node);
       _unmount(node, instance, parentSuspense, true);
     };
