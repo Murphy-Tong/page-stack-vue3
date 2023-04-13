@@ -47,7 +47,6 @@ export default defineComponent({
       props.componentEvaluator ||
       new PageStackEvaluator(
         props.router || useRouter(),
-        inject(viewDepthKey) as Ref<number>,
         props.mergeQueryToProps,
         props.lifeCycleCallback
       );

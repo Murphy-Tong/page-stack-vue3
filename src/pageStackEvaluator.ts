@@ -80,17 +80,14 @@ export class PageStackEvaluator implements ComponentEvaluator {
   private routerChanged = false;
   public router: Router;
   public lifecycleCallback: LifecycleCallback | null;
-  protected depthRef: Ref<number>;
 
   debug = false;
 
   constructor(
     router: Router,
-    depthRef: Ref<number>,
     mergeQueryToProps = false,
     lifecycleCallback: LifecycleCallback | undefined
   ) {
-    this.depthRef = depthRef;
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
@@ -101,13 +98,15 @@ export class PageStackEvaluator implements ComponentEvaluator {
     if (this.router) {
       this.router.beforeEach(
         (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
-          const rootRouterViewDepth = Math.max(
-            this.depthRef?.value || 1 - 1,
-            0
-          );
-          if (to.matched[rootRouterViewDepth + 1]) {
-            const toFirstMatched = to.matched[rootRouterViewDepth];
-            const fromFirstMatched = from.matched[rootRouterViewDepth];
+          let depth = 0;
+          let cmp = to.matched[depth];
+          while (cmp && !cmp.components) {
+            depth++;
+            cmp = to.matched[depth];
+          }
+          if (to.matched[depth + 1]) {
+            const toFirstMatched = to.matched[depth];
+            const fromFirstMatched = from.matched[depth];
             this.setRouterChanged(
               toFirstMatched !== fromFirstMatched || !toFirstMatched
             );
