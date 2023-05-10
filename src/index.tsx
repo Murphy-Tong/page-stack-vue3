@@ -1,5 +1,5 @@
-import { defineComponent, inject, PropType, Ref, Transition } from "vue";
-import { Router, viewDepthKey, useRouter } from "vue-router";
+import { defineComponent, PropType, Transition } from "vue";
+import { Router, useRouter } from "vue-router";
 import { ComponentCache, ComponentEvaluator, Props } from "./componentCache";
 import "./index.css";
 import {
