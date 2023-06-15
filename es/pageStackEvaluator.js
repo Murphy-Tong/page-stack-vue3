@@ -206,7 +206,11 @@ export class PageStackEvaluator {
     }
 
     queuePostFlushCb(() => {
-      this.destoryPage(page, ctx);
+      try {
+        this.destoryPage(page, ctx);
+      } catch (e) {
+        console.error(e);
+      }
     });
   }
 
