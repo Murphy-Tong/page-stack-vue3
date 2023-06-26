@@ -7,7 +7,6 @@ export declare type RenderSlotProps = {
 };
 interface State {
     position: number;
-    curNode: string | null;
 }
 declare class PageNode {
     node: VNode | null;
@@ -29,6 +28,7 @@ export interface LifecycleCallback {
     onDestory?(node: VNode): void;
 }
 export declare class PageStackEvaluator implements ComponentEvaluator {
+    private instanceId;
     protected idGen: number;
     protected pageList: PageNode;
     protected lastDisplayPage: PageNode | null;

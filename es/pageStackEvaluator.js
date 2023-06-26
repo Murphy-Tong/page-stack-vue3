@@ -1,4 +1,5 @@
 import { cloneVNode, queuePostFlushCb } from "vue";
+let instanceCounter = 0;
 
 class PageNode {
   constructor(node, lifecycleCallback, tag) {
@@ -41,7 +42,6 @@ class PageNode {
   }
 
   updateState(state) {
-    state.curNode = this.tag;
     this.state = state;
   }
 
@@ -57,7 +57,8 @@ function same(n1, n2) {
 
 export class PageStackEvaluator {
   constructor(router, mergeQueryToProps = false, lifecycleCallback) {
-    this.idGen = new Date().valueOf();
+    this.instanceId = 0;
+    this.idGen = 1;
     this.pageList = new PageNode();
     this.lastDisplayPage = null;
     this.mergeQueryToProps = false;
@@ -66,6 +67,8 @@ export class PageStackEvaluator {
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
+    instanceCounter++;
+    this.instanceId = instanceCounter;
     this.setListener();
   }
 
@@ -132,7 +135,7 @@ export class PageStackEvaluator {
   createPage(node, state, link = true) {
     var _a, _b, _c;
 
-    const tag = String(this.idGen++);
+    const tag = String(`${this.instanceId}_${this.idGen++}`);
     const pn = new PageNode(cloneVNode(node, {
       key: ((_a = node.props) === null || _a === void 0 ? void 0 : _a.key) && typeof ((_b = node.props) === null || _b === void 0 ? void 0 : _b.key) === "string" ? `${(_c = node.props) === null || _c === void 0 ? void 0 : _c.key}-${tag}` : tag
     }), this.lifecycleCallback || undefined, tag);
@@ -143,7 +146,6 @@ export class PageStackEvaluator {
       pn.pre = lp;
     }
 
-    state.curNode = tag;
     pn.state = state;
     pn.moveTo("onCreate");
     pn.moveTo("onResume", true);
@@ -264,11 +266,11 @@ export class PageStackEvaluator {
       console.log("-----------------");
     }
 
-    this.debugPageStack("页面切换前 routerChanged : " + this.isRouterChanged());
+    this.debugPageStack("页面切换前");
 
     const n = this._evaluate(node, ctx);
 
-    this.debugPageStack("页面切换后 routerChanged: " + this.isRouterChanged());
+    this.debugPageStack("页面切换后");
     setTimeout(() => {
       this.debugPageStack("页面切换并渲染后");
 
@@ -384,11 +386,13 @@ export class PageStackEvaluator {
     }
 
     if (!this.isRouterChanged()) {
+      console.log("路由没有变化");
       return this.onUpdateWithRouterNoChange(node, state, ctx);
     }
 
     this.setRouterChanged(false);
     const action = this.getAction();
+    console.log("action is ", action);
 
     if (action === "init") {
       return this.onInitPage(node, state, ctx);
@@ -417,11 +421,9 @@ export class PageStackEvaluator {
 
 
   onBack(newNode, state, ctx) {
-    const {
-      curNode
-    } = state; // 找到返回的页面
+    var _a;
 
-    const oldPage = this.findPageNode(curNode); // 可以复用的条件是node的类型相同，不比较key
+    const oldPage = (_a = this.lastDisplayPage) === null || _a === void 0 ? void 0 : _a.pre; // 可以复用的条件是node的类型相同，不比较key
 
     if (oldPage && oldPage.node && same(oldPage.node, newNode)) {
       const oldNode = oldPage.node;

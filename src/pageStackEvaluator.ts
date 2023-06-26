@@ -7,9 +7,9 @@ export type RouteAction = "init" | "forword" | "back" | "replace" | "unknown";
 export type RenderSlotProps = { action: RouteAction };
 interface State {
   position: number;
-  curNode: string | null;
 }
 
+let instanceCounter = 0;
 class PageNode {
   node: VNode | null;
   next: PageNode | null;
@@ -38,7 +38,6 @@ class PageNode {
   }
 
   updateState(state: State) {
-    state.curNode = this.tag;
     this.state = state;
   }
 
@@ -73,7 +72,8 @@ export interface LifecycleCallback {
 }
 
 export class PageStackEvaluator implements ComponentEvaluator {
-  protected idGen = new Date().valueOf();
+  private instanceId = 0;
+  protected idGen = 1;
   protected pageList = new PageNode();
   protected lastDisplayPage: PageNode | null = null;
   protected mergeQueryToProps = false;
@@ -91,6 +91,8 @@ export class PageStackEvaluator implements ComponentEvaluator {
     this.lifecycleCallback = lifecycleCallback || null;
     this.router = router;
     this.mergeQueryToProps = mergeQueryToProps;
+    instanceCounter++;
+    this.instanceId = instanceCounter;
     this.setListener();
   }
 
@@ -155,7 +157,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
   }
 
   protected createPage(node: VNode, state: State, link = true) {
-    const tag = String(this.idGen++);
+    const tag = String(`${this.instanceId}_${this.idGen++}`);
     const pn = new PageNode(
       cloneVNode(node, {
         key:
@@ -172,8 +174,6 @@ export class PageStackEvaluator implements ComponentEvaluator {
       lp.next = pn;
       pn.pre = lp;
     }
-
-    state.curNode = tag;
 
     pn.state = state;
     pn.moveTo("onCreate");
@@ -288,9 +288,9 @@ export class PageStackEvaluator implements ComponentEvaluator {
     if (this.debug) {
       console.log("-----------------");
     }
-    this.debugPageStack("页面切换前 routerChanged : " + this.isRouterChanged());
+    this.debugPageStack("页面切换前");
     const n = this._evaluate(node, ctx);
-    this.debugPageStack("页面切换后 routerChanged: " + this.isRouterChanged());
+    this.debugPageStack("页面切换后");
     setTimeout(() => {
       this.debugPageStack("页面切换并渲染后");
       if (this.debug) {
@@ -399,10 +399,12 @@ export class PageStackEvaluator implements ComponentEvaluator {
       return this.onInitPage(node, state, ctx);
     }
     if (!this.isRouterChanged()) {
+      console.log("路由没有变化");
       return this.onUpdateWithRouterNoChange(node, state, ctx);
     }
     this.setRouterChanged(false);
     const action = this.getAction();
+    console.log("action is ", action);
     if (action === "init") {
       return this.onInitPage(node, state, ctx);
     }
@@ -425,9 +427,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
    * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
    */
   protected onBack(newNode: VNode, state: any, ctx: CacheContext) {
-    const { curNode } = state;
-    // 找到返回的页面
-    const oldPage = this.findPageNode(curNode);
+    const oldPage = this.lastDisplayPage?.pre;
     // 可以复用的条件是node的类型相同，不比较key
     if (oldPage && oldPage.node && same(oldPage.node, newNode)) {
       const oldNode = oldPage.node;
