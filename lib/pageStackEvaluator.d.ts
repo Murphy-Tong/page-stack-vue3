@@ -85,7 +85,7 @@ export declare class PageStackEvaluator implements ComponentEvaluator {
     protected onReplace(newNode: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
-    protected onUnknown(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {
+    protected onUnknown(node: VNode, state: any, ctx: CacheContext, errorMsg: string): VNode<import("vue").RendererNode, import("vue").RendererElement, {
         [key: string]: any;
     }>;
     protected onInitPage(node: VNode, state: any, ctx: CacheContext): VNode<import("vue").RendererNode, import("vue").RendererElement, {

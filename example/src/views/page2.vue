@@ -3,6 +3,8 @@
     <input/>
     <button @click="forward">go next page</button>
     <button @click="back">go back</button>
+    <button @click="back2">go back2</button>
+    <button @click="back3">go back3</button>
   </div>
 </template>
 
@@ -17,6 +19,12 @@ import router from '@/router';
     },
     back() {
       router.go(-1)
+    },
+    back3() {
+      router.go(-3)
+    },
+    back2() {
+      router.go(-2)
     }
   }
 })

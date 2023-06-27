@@ -358,7 +358,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
     // 当前显示的页面
     const oldPage = this.findPageNode(this.lastDisplayPage!.tag!);
     if (!oldPage?.node || !same(newNode, oldPage?.node)) {
-      return this.onUnknown(newNode, state, ctx);
+      return this.onReplace(newNode, state, ctx);
     }
     const oldNode = oldPage.node;
     oldPage.node = ctx.reuseNode(
@@ -378,7 +378,12 @@ export class PageStackEvaluator implements ComponentEvaluator {
     state: any,
     ctx: CacheContext
   ) {
-    return this.onUnknown(newNode, state, ctx);
+    return this.onUnknown(
+      newNode,
+      state,
+      ctx,
+      "路由没有变化，但是组件发生了变化"
+    );
   }
 
   private _evaluate(n: VNode, ctx: CacheContext): VNode | null {
@@ -420,14 +425,21 @@ export class PageStackEvaluator implements ComponentEvaluator {
       }
     }
     // unknown 清除掉所有缓存的数据
-    return this.onUnknown(node, state, ctx);
+    return this.onUnknown(node, state, ctx, "未知的路由变化");
   }
 
   /**
    * 回退，旧页面可以复用。可以复用的条件是node的类型相同，不比较key
    */
   protected onBack(newNode: VNode, state: any, ctx: CacheContext) {
-    const oldPage = this.lastDisplayPage?.pre;
+    if (!this.lastDisplayPage?.pre) {
+      return this.onBackFailed(newNode, state, ctx);
+    }
+    const { position: targetPosition } = state;
+    let oldPage: PageNode | null = this.lastDisplayPage?.pre;
+    while (oldPage && targetPosition !== oldPage.state?.position) {
+      oldPage = oldPage.pre;
+    }
     // 可以复用的条件是node的类型相同，不比较key
     if (oldPage && oldPage.node && same(oldPage.node, newNode)) {
       const oldNode = oldPage.node;
@@ -451,7 +463,7 @@ export class PageStackEvaluator implements ComponentEvaluator {
   }
 
   protected onBackFailed(newNode: VNode, state: any, ctx: CacheContext) {
-    return this.onUnknown(newNode, state, ctx);
+    return this.onUnknown(newNode, state, ctx, "返回失败");
   }
 
   protected onReplace(newNode: VNode, state: any, ctx: CacheContext) {
@@ -467,7 +479,13 @@ export class PageStackEvaluator implements ComponentEvaluator {
     return this.lastDisplayPage.node!;
   }
 
-  protected onUnknown(node: VNode, state: any, ctx: CacheContext) {
+  protected onUnknown(
+    node: VNode,
+    state: any,
+    ctx: CacheContext,
+    errorMsg: string
+  ) {
+    console.error(errorMsg || "ps error");
     // 销毁所有的页面
     const destoryPage = this.removeNode(this.pageList.next!);
     this.destoryPageAsync(ctx, destoryPage!);
@@ -479,7 +497,14 @@ export class PageStackEvaluator implements ComponentEvaluator {
   }
 
   protected onInitPage(node: VNode, state: any, ctx: CacheContext) {
-    return this.onUnknown(node, state, ctx);
+    // 销毁所有的页面
+    const destoryPage = this.removeNode(this.pageList.next!);
+    this.destoryPageAsync(ctx, destoryPage!);
+    // 创建新的
+    this.pageList.next = this.createPage(node, state);
+    ctx.cacheNode(this.pageList.next.node!);
+    this.lastDisplayPage = this.pageList.next;
+    return this.lastDisplayPage.node!;
   }
 
   reset(ctx: CacheContext): void {
