@@ -1,6 +1,6 @@
 {
   "name": "page-stack-vue3",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "description": "",
   "main": "./es/index.js",
   "exports": {
