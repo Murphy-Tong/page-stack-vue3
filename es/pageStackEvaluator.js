@@ -386,13 +386,19 @@ export class PageStackEvaluator {
     }
 
     if (!this.isRouterChanged()) {
-      console.log("路由没有变化");
+      if (this.debug) {
+        console.log("路由没有变化");
+      }
+
       return this.onUpdateWithRouterNoChange(node, state, ctx);
     }
 
     this.setRouterChanged(false);
     const action = this.getAction();
-    console.log("action is ", action);
+
+    if (this.debug) {
+      console.log("action is ", action);
+    }
 
     if (action === "init") {
       return this.onInitPage(node, state, ctx);
